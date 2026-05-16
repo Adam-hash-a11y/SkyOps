@@ -1,0 +1,42 @@
+{
+  "name": "skyops",
+  "version": "1.0.0",
+  "description": "SkyOps",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon main.ts",
+    "test": "jest --detectOpenHandles",
+    "eslint": "npx eslint .",
+    "prettier": "npx prettier . --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adam-hash-a11y/SkyOps.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Adam-hash-a11y/SkyOps/issues"
+  },
+  "homepage": "https://github.com/Adam-hash-a11y/SkyOps#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.6.0",
+    "jest": "^30.4.2",
+    "jiti": "^2.7.0",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.3",
+    "ts-jest": "^29.4.9",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.3"
+  }
+}

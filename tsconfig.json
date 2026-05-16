@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "types": ["jest"],
+    "target": "ESNext",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "removeComments": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}
