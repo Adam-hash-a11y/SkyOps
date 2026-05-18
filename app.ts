@@ -1,6 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import { router } from "./src/routes";
 
 export const app = express();
 
@@ -52,3 +53,5 @@ app.use(
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to Skyops" });
 });
+
+app.use("/api", router);
