@@ -22,12 +22,14 @@
   "homepage": "https://github.com/Adam-hash-a11y/SkyOps#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
     "@typescript-eslint/parser": "^8.59.3",
     "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "express": "^5.2.1",
     "globals": "^17.6.0",
     "jest": "^30.4.2",
     "jiti": "^2.7.0",
@@ -38,5 +40,9 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.3"
+  },
+  "dependencies": {
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.1.0"
   }
 }
