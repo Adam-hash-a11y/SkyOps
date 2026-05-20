@@ -9,3 +9,7 @@ export const saveFlight = async (flight: FlightBody) => {
     throw new Error(`Error saving flight: ${(error as Error).message}`);
   }
 };
+
+export const findFlightByNumber = async (flightNumber: string) => {
+  return await FlightModel.findOne({ flightNumber });
+};
