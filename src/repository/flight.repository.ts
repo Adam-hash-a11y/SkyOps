@@ -6,7 +6,7 @@ export const saveFlight = async (flight: FlightBody) => {
     const doc = new FlightModel(flight);
     return await doc.save();
   } catch (error) {
-    throw new Error(`Error saving flight: ${(error as Error).message}`);
+    throw new Error("Error saving flight", { cause: error });
   }
 };
 
