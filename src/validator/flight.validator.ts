@@ -6,15 +6,14 @@ export const isValidDepartureArrival = (schedule: {
   departureTime: Date;
 }): boolean => {
   if (!schedule) return false;
-  if (!schedule?.arrivalTime || !schedule?.departureTime) return false;
+  if (!schedule.arrivalTime || !schedule.departureTime) return false;
 
-  if (
-    !validator.isISO8601(String(schedule.departureTime)) ||
-    !validator.isISO8601(String(schedule.arrivalTime))
-  )
-    return false;
+  const departure = new Date(schedule.departureTime);
+  const arrival = new Date(schedule.arrivalTime);
 
-  return new Date(schedule.departureTime) < new Date(schedule.arrivalTime);
+  if (Number.isNaN(departure.getTime()) || Number.isNaN(arrival.getTime())) return false;
+
+  return departure < arrival;
 };
 
 export const isValidAirline = (airline: unknown): boolean => {
