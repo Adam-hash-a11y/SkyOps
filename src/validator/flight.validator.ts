@@ -10,9 +10,8 @@ export const isValidDepartureArrival = (schedule: {
 
   const departure = new Date(schedule.departureTime);
   const arrival = new Date(schedule.arrivalTime);
-
-  if (Number.isNaN(departure.getTime()) || Number.isNaN(arrival.getTime())) return false;
-
+  if (Number.isNaN(departure.getTime()) || Number.isNaN(arrival.getTime()))
+    return false;
   return departure < arrival;
 };
 
@@ -21,6 +20,31 @@ export const isValidAirline = (airline: unknown): boolean => {
   if (!validator.isAlpha(airline)) return false;
   if (airline.length < 5) return false;
   return true;
+};
+
+export const isValidIATA = (code: string): boolean => {
+  if (!code) return false;
+  if (code.length !== 3) return false;
+  if (!validator.isAlpha(code)) return false;
+  if (code !== code.toUpperCase()) return false;
+  return true;
+};
+
+export const isValidQueryParams = (query: Record<string, unknown>): boolean => {
+  for (const key of Object.keys(query)) {
+    if (
+      key !== "status" &&
+      key !== "origin" &&
+      key !== "destination" &&
+      key !== "sortBy"
+    )
+      return false;
+  }
+  return true;
+};
+export const isValidSortByDepatureTime = (sortKey: string): boolean => {
+  if (typeof sortKey !== "string") return false;
+  return sortKey === "departureTime";
 };
 
 export const isValidOriginDestination = (route: {
