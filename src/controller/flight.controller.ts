@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
   createFlightService,
+  deleteFlightService,
   getFlightByFlightNumber,
   getFlightsByFilters,
 } from "../service/flightService";
@@ -37,4 +38,15 @@ export const getFlights = async (req: Request, res: Response) => {
   });
 
   return res.status(200).json({ flights: result });
+};
+
+export const deleteFlight = async (
+  req: Request<{ flightNumber: string }>,
+  res: Response,
+) => {
+  const result = await deleteFlightService(req.params.flightNumber);
+  if (!result) {
+    return res.status(404).json({ message: "flight not found" });
+  }
+  return res.status(200).json({ message: "flight deleted successfully" });
 };
