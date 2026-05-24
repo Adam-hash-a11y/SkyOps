@@ -1,4 +1,5 @@
 import {
+  deleteFlightByNumber,
   findFlightByNumber,
   findFlightsByFilters,
   saveFlight,
@@ -24,4 +25,8 @@ export const getFlightsByFilters = async (filters: {
   sortBy?: string;
 }) => {
   return await findFlightsByFilters(filters);
+};
+
+export const deleteFlightService = async (flightNumber: string) => {
+  return await deleteFlightByNumber(flightNumber);
 };

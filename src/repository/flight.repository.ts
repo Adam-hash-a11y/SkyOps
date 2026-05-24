@@ -34,3 +34,7 @@ export const findFlightsByFilters = async (filters: {
     filters.sortBy === "departureTime" ? { "schedule.departureTime": 1 } : {},
   );
 };
+
+export const deleteFlightByNumber = async (flightNumber: string) => {
+  return await FlightModel.findOneAndDelete({ flightNumber });
+};
