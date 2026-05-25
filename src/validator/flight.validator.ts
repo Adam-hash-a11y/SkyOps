@@ -146,3 +146,38 @@ export const isValidFlightBody = (flight: FlightBody): boolean => {
 
   return true;
 };
+
+export const isValidUpdateFlightBody = (flight: FlightBody): boolean => {
+  if (typeof flight !== "object" || flight === null) return false;
+
+  for (const key of Object.keys(flight)) {
+    if (
+      key !== "airline" &&
+      key !== "route" &&
+      key !== "schedule" &&
+      key !== "status" &&
+      key !== "seats"
+    )
+      return false;
+  }
+
+  if (flight.route !== undefined) {
+    for (const key of Object.keys(flight.route)) {
+      if (key !== "origin" && key !== "destination") return false;
+    }
+  }
+
+  if (flight.schedule !== undefined) {
+    for (const key of Object.keys(flight.schedule)) {
+      if (key !== "departureTime" && key !== "arrivalTime") return false;
+    }
+  }
+
+  if (flight.seats !== undefined) {
+    for (const key of Object.keys(flight.seats)) {
+      if (key !== "total" && key !== "booked") return false;
+    }
+  }
+
+  return true;
+};
