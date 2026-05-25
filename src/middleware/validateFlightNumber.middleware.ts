@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { isValidFlightNumber } from "../validator/flight.validator";
 
-export const validateDeleteFlight = (
+export const validateFlightNumber = (
   req: Request<{ flightNumber: string }>,
   res: Response,
   next: NextFunction,

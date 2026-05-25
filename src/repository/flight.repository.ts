@@ -38,3 +38,14 @@ export const findFlightsByFilters = async (filters: {
 export const deleteFlightByNumber = async (flightNumber: string) => {
   return await FlightModel.findOneAndDelete({ flightNumber });
 };
+
+export const updateFlightByFlightNumber = async (
+  flightNumber: string,
+  updates: Partial<FlightBody>,
+) => {
+  return await FlightModel.findOneAndUpdate(
+    { flightNumber },
+    { $set: updates },
+    { returnDocument: "after", runValidators: true },
+  );
+};

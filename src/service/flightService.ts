@@ -3,6 +3,7 @@ import {
   findFlightByNumber,
   findFlightsByFilters,
   saveFlight,
+  updateFlightByFlightNumber,
 } from "../repository/flight.repository";
 import { FlightBody, FlightStatus } from "../types/flight.types";
 
@@ -29,4 +30,15 @@ export const getFlightsByFilters = async (filters: {
 
 export const deleteFlightService = async (flightNumber: string) => {
   return await deleteFlightByNumber(flightNumber);
+};
+
+export const updateFlightService = async (
+  flightNumber: string,
+  updates: Partial<FlightBody>,
+) => {
+  const existingFlight = await findFlightByNumber(flightNumber);
+  if (!existingFlight) {
+    return null;
+  }
+  return await updateFlightByFlightNumber(flightNumber, updates);
 };
