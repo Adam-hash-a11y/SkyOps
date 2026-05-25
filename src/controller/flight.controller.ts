@@ -4,6 +4,7 @@ import {
   deleteFlightService,
   getFlightByFlightNumber,
   getFlightsByFilters,
+  updateFlightService,
 } from "../service/flightService";
 import { FlightBody, FlightStatus } from "../types/flight.types";
 
@@ -49,4 +50,23 @@ export const deleteFlight = async (
     return res.status(404).json({ message: "flight not found" });
   }
   return res.status(200).json({ message: "flight deleted successfully" });
+};
+
+export const updateFlight = async (
+  req: Request<{ flightNumber: string }>,
+  res: Response,
+) => {
+  const result = await updateFlightService(
+    req.params.flightNumber,
+    req.body as Partial<FlightBody>,
+  );
+
+  if (!result) {
+    return res.status(404).json({ message: "flight not found" });
+  }
+
+  return res.status(200).json({
+    message: "flight updated successfully",
+    flight: result,
+  });
 };
