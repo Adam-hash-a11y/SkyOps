@@ -1,10 +1,12 @@
 import {
   createFlightService,
+  deleteFlightService,
   getFlightByFlightNumber,
   getFlightsByFilters,
   updateFlightService,
 } from "../../src/service/flightService";
 import {
+  deleteFlightByNumber,
   findFlightByNumber,
   findFlightsByFilters,
   saveFlight,
@@ -146,6 +148,36 @@ describe("test updateFlightService function", () => {
 
     // When
     const result = await updateFlightService(flightNumber, updates);
+
+    // Then
+    expect(result).toBeNull();
+  });
+});
+describe("test deleteFlightService function", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should delete and return the flight", async () => {
+    // Given
+    const flightNumber = "SKYOPS-101";
+    const mockFlight = { flightNumber };
+    (deleteFlightByNumber as jest.Mock).mockResolvedValue(mockFlight);
+
+    // When
+    const result = await deleteFlightService(flightNumber);
+
+    // Then
+    expect(result).toEqual(mockFlight);
+  });
+
+  it("should return null when flight not found", async () => {
+    // Given
+    const flightNumber = "SKYOPS-999";
+    (deleteFlightByNumber as jest.Mock).mockResolvedValue(null);
+
+    // When
+    const result = await deleteFlightService(flightNumber);
 
     // Then
     expect(result).toBeNull();

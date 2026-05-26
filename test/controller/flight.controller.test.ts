@@ -17,6 +17,9 @@ const mockedGetFlightByFlightNumber = jest.mocked(
 const mockedUpdateFlightService = jest.mocked(
   flightService.updateFlightService,
 );
+const mockedDeleteFlightService = jest.mocked(
+  flightService.deleteFlightService,
+);
 
 const validBody = {
   flightNumber: "SKYOPS-101",
@@ -190,6 +193,45 @@ describe("PATCH /api/flights/:flightNumber", () => {
     const result = await request(app)
       .patch("/api/flights/SKYOPS-101")
       .send({ flightNumber: "SKYOPS-999" });
+
+    // Then
+    expect(result.status).toBe(400);
+  });
+});
+
+describe("DELETE /api/flights/:flightNumber", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should delete a flight and return 200", async () => {
+    // Given
+    const mockFlight = { flightNumber: "SKYOPS-101" };
+    mockedDeleteFlightService.mockResolvedValue(mockFlight as any);
+
+    // When
+    const result = await request(app).delete("/api/flights/SKYOPS-101");
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.message).toBe("flight deleted successfully");
+  });
+
+  it("should return 404 when flight not found", async () => {
+    // Given
+    mockedDeleteFlightService.mockResolvedValue(null);
+
+    // When
+    const result = await request(app).delete("/api/flights/SKYOPS-999");
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("flight not found");
+  });
+
+  it("should return 400 for invalid flight number", async () => {
+    // When
+    const result = await request(app).delete("/api/flights/INVALID");
 
     // Then
     expect(result.status).toBe(400);

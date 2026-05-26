@@ -11,6 +11,7 @@ import {
   isValidQueryParams,
   isValidSortByDepatureTime,
   isValidUpdateFlightBody,
+  isValidFlightBody,
 } from "../../src/validator/flight.validator";
 
 describe("test isValidFlightNumber validator function", () => {
@@ -342,6 +343,71 @@ describe("test isValidUpdateFlightBody validator function", () => {
 
     // When
     const result = isValidUpdateFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
+});
+
+describe("test isValidFlightBody validator function", () => {
+  it("should return true for valid flight body", () => {
+    // Given
+    const body = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      seats: { total: 180, booked: 0 },
+    };
+
+    // When
+    const result = isValidFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false for extra key", () => {
+    // Given
+    const body = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      seats: { total: 180, booked: 0 },
+      extra: "field",
+    };
+
+    // When
+    const result = isValidFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false when flightNumber is missing", () => {
+    // Given
+    const body = {
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      seats: { total: 180, booked: 0 },
+    };
+
+    // When
+    const result = isValidFlightBody(body as any);
 
     // Then
     expect(result).toBe(false);
