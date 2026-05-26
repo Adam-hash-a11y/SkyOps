@@ -14,6 +14,9 @@ const mockedGetFlightsByFilters = jest.mocked(
 const mockedGetFlightByFlightNumber = jest.mocked(
   flightService.getFlightByFlightNumber,
 );
+const mockedUpdateFlightService = jest.mocked(
+  flightService.updateFlightService,
+);
 
 const validBody = {
   flightNumber: "SKYOPS-101",
@@ -145,5 +148,50 @@ describe("GET /api/flights/:flightNumber", () => {
     // Then
     expect(result.status).toBe(404);
     expect(result.body.message).toBe("flight not found");
+  });
+});
+
+describe("PATCH /api/flights/:flightNumber", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should update a flight and return 200", async () => {
+    // Given
+    const mockFlight = { flightNumber: "SKYOPS-101", status: "delayed" };
+    mockedUpdateFlightService.mockResolvedValue(mockFlight as any);
+
+    // When
+    const result = await request(app)
+      .patch("/api/flights/SKYOPS-101")
+      .send({ status: "delayed" });
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.flight).toBeDefined();
+  });
+
+  it("should return 404 when flight not found", async () => {
+    // Given
+    mockedUpdateFlightService.mockResolvedValue(null);
+
+    // When
+    const result = await request(app)
+      .patch("/api/flights/SKYOPS-999")
+      .send({ status: "delayed" });
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("flight not found");
+  });
+
+  it("should return 400 for invalid body", async () => {
+    // When
+    const result = await request(app)
+      .patch("/api/flights/SKYOPS-101")
+      .send({ flightNumber: "SKYOPS-999" });
+
+    // Then
+    expect(result.status).toBe(400);
   });
 });

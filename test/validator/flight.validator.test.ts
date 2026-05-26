@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FlightStatus } from "../../src/types/flight.types";
 import {
   isValidFlightNumber,
@@ -9,6 +10,7 @@ import {
   isValidIATA,
   isValidQueryParams,
   isValidSortByDepatureTime,
+  isValidUpdateFlightBody,
 } from "../../src/validator/flight.validator";
 
 describe("test isValidFlightNumber validator function", () => {
@@ -306,6 +308,40 @@ describe("test isValidSortByDepartureTime validator function", () => {
 
     // When
     const result = isValidSortByDepatureTime(sortKey);
+
+    // Then
+    expect(result).toBe(false);
+  });
+});
+describe("test isValidUpdateFlightBody validator function", () => {
+  it("should return true for valid update body", () => {
+    // Given
+    const body = { status: "delayed" };
+
+    // When
+    const result = isValidUpdateFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false when flightNumber is in body", () => {
+    // Given
+    const body = { flightNumber: "SKYOPS-101", status: "delayed" };
+
+    // When
+    const result = isValidUpdateFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false for unknown key", () => {
+    // Given
+    const body = { unknown: "value" };
+
+    // When
+    const result = isValidUpdateFlightBody(body as any);
 
     // Then
     expect(result).toBe(false);

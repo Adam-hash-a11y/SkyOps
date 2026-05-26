@@ -1,8 +1,14 @@
-import { createFlightService, getFlightByFlightNumber, getFlightsByFilters } from "../../src/service/flightService";
+import {
+  createFlightService,
+  getFlightByFlightNumber,
+  getFlightsByFilters,
+  updateFlightService,
+} from "../../src/service/flightService";
 import {
   findFlightByNumber,
   findFlightsByFilters,
   saveFlight,
+  updateFlightByFlightNumber,
 } from "../../src/repository/flight.repository";
 import { FlightBody, FlightStatus } from "../../src/types/flight.types";
 
@@ -110,5 +116,38 @@ describe("test getFlightsByFilters service function", () => {
 
     // Then
     expect(result).toEqual([]);
+  });
+});
+describe("test updateFlightService function", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should update and return the flight", async () => {
+    // Given
+    const flightNumber = "SKYOPS-101";
+    const updates: Partial<FlightBody> = { status: "delayed" };
+    const mockFlight = { flightNumber, status: "delayed" };
+    (findFlightByNumber as jest.Mock).mockResolvedValue({ flightNumber });
+    (updateFlightByFlightNumber as jest.Mock).mockResolvedValue(mockFlight);
+
+    // When
+    const result = await updateFlightService(flightNumber, updates);
+
+    // Then
+    expect(result).toEqual(mockFlight);
+  });
+
+  it("should return null when flight not found", async () => {
+    // Given
+    const flightNumber = "SKYOPS-999";
+    const updates: Partial<FlightBody> = { status: "delayed" };
+    (findFlightByNumber as jest.Mock).mockResolvedValue(null);
+
+    // When
+    const result = await updateFlightService(flightNumber, updates);
+
+    // Then
+    expect(result).toBeNull();
   });
 });
