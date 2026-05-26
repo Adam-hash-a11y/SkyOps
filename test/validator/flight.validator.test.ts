@@ -6,6 +6,9 @@ import {
   isValidDepartureArrival,
   isValidStatus,
   isValidSeats,
+  isValidIATA,
+  isValidQueryParams,
+  isValidSortByDepatureTime,
 } from "../../src/validator/flight.validator";
 
 describe("test isValidFlightNumber validator function", () => {
@@ -221,6 +224,88 @@ describe("test isValidSeats validator function", () => {
 
     // When
     const result = isValidSeats(seats);
+
+    // Then
+    expect(result).toBe(false);
+  });
+});
+describe("test isValidIATA validator function", () => {
+  it("should return true for valid IATA code", () => {
+    // Given
+    const code = "TUN";
+
+    // When
+    const result = isValidIATA(code);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false for lowercase code", () => {
+    // Given
+    const code = "tun";
+
+    // When
+    const result = isValidIATA(code);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false for code longer than 3 characters", () => {
+    // Given
+    const code = "TUNN";
+
+    // When
+    const result = isValidIATA(code);
+
+    // Then
+    expect(result).toBe(false);
+  });
+});
+
+describe("test isValidQueryParams validator function", () => {
+  it("should return true for valid query params", () => {
+    // Given
+    const query = { status: "scheduled", origin: "TUN" };
+
+    // When
+    const result = isValidQueryParams(query);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false for unknown query param", () => {
+    // Given
+    const query = { unknown: "value" };
+
+    // When
+    const result = isValidQueryParams(query);
+
+    // Then
+    expect(result).toBe(false);
+  });
+});
+
+describe("test isValidSortByDepartureTime validator function", () => {
+  it("should return true for departureTime", () => {
+    // Given
+    const sortKey = "departureTime";
+
+    // When
+    const result = isValidSortByDepatureTime(sortKey);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false for invalid sort key", () => {
+    // Given
+    const sortKey = "arrivalTime";
+
+    // When
+    const result = isValidSortByDepatureTime(sortKey);
 
     // Then
     expect(result).toBe(false);

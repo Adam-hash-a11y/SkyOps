@@ -1,9 +1,10 @@
-import { createFlightService } from "../../src/service/flightService";
+import { createFlightService, getFlightByFlightNumber, getFlightsByFilters } from "../../src/service/flightService";
 import {
   findFlightByNumber,
+  findFlightsByFilters,
   saveFlight,
 } from "../../src/repository/flight.repository";
-import { FlightBody } from "../../src/types/flight.types";
+import { FlightBody, FlightStatus } from "../../src/types/flight.types";
 
 jest.mock("../../src/repository/flight.repository");
 
@@ -55,5 +56,59 @@ describe("test createFlightService fucntion", () => {
 
     // Then
     await expect(action).rejects.toThrow("flight number already exists");
+  });
+});
+
+describe("test getFlightByFlightNumber service function", () => {
+  it("should return a flight when found", async () => {
+    // Given
+    const flightNumber = "SKYOPS-101";
+    const mockFlight = { flightNumber, airline: "Lufthansa" };
+    (findFlightByNumber as jest.Mock).mockResolvedValue(mockFlight);
+
+    // When
+    const result = await getFlightByFlightNumber(flightNumber);
+
+    // Then
+    expect(result).toEqual(mockFlight);
+  });
+
+  it("should return null when flight not found", async () => {
+    // Given
+    const flightNumber = "SKYOPS-999";
+    (findFlightByNumber as jest.Mock).mockResolvedValue(null);
+
+    // When
+    const result = await getFlightByFlightNumber(flightNumber);
+
+    // Then
+    expect(result).toBeNull();
+  });
+});
+
+describe("test getFlightsByFilters service function", () => {
+  it("should return flights matching filters", async () => {
+    // Given
+    const filters = { status: "scheduled" as FlightStatus };
+    const mockFlights = [{ flightNumber: "SKYOPS-101", status: "scheduled" }];
+    (findFlightsByFilters as jest.Mock).mockResolvedValue(mockFlights);
+
+    // When
+    const result = await getFlightsByFilters(filters);
+
+    // Then
+    expect(result).toEqual(mockFlights);
+  });
+
+  it("should return empty array when no flights match", async () => {
+    // Given
+    const filters = { status: "cancelled" as FlightStatus };
+    (findFlightsByFilters as jest.Mock).mockResolvedValue([]);
+
+    // When
+    const result = await getFlightsByFilters(filters);
+
+    // Then
+    expect(result).toEqual([]);
   });
 });
