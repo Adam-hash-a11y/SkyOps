@@ -8,6 +8,12 @@ jest.mock("../../src/service/flightService");
 const mockedCreateFlightService = jest.mocked(
   flightService.createFlightService,
 );
+const mockedGetFlightsByFilters = jest.mocked(
+  flightService.getFlightsByFilters,
+);
+const mockedGetFlightByFlightNumber = jest.mocked(
+  flightService.getFlightByFlightNumber,
+);
 
 const validBody = {
   flightNumber: "SKYOPS-101",
@@ -91,5 +97,53 @@ describe("POST /api/flights", () => {
 
     // Then
     expect(result.status).toBe(400);
+  });
+});
+describe("GET /api/flights", () => {
+  it("should return all flights", async () => {
+    // Given
+    const mockFlights = [{ flightNumber: "SKYOPS-101" }];
+    mockedGetFlightsByFilters.mockResolvedValue(mockFlights as any);
+
+    // When
+    const result = await request(app).get("/api/flights");
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.flights).toBeDefined();
+  });
+
+  it("should return 400 for invalid query param", async () => {
+    // When
+    const result = await request(app).get("/api/flights?unknown=value");
+
+    // Then
+    expect(result.status).toBe(400);
+  });
+});
+
+describe("GET /api/flights/:flightNumber", () => {
+  it("should return a flight when found", async () => {
+    // Given
+    const mockFlight = { flightNumber: "SKYOPS-101" };
+    mockedGetFlightByFlightNumber.mockResolvedValue(mockFlight as any);
+
+    // When
+    const result = await request(app).get("/api/flights/SKYOPS-101");
+
+    // Then
+    expect(result.status).toBe(200);
+  });
+
+  it("should return 404 when flight not found", async () => {
+    // Given
+    mockedGetFlightByFlightNumber.mockResolvedValue(null);
+
+    // When
+    const result = await request(app).get("/api/flights/SKYOPS-999");
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("flight not found");
   });
 });
