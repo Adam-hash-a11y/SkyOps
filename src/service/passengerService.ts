@@ -18,3 +18,9 @@ export const createPassengerService = async (passenger: PassengerBody) => {
   }
   return await savePassenger(passenger);
 };
+
+export const getPassengerByPassportNumberService = async (
+  passportNumber: string,
+) => {
+  return await findPassengerByPassport(passportNumber);
+};

@@ -3,7 +3,10 @@ import {
   findPassengerByPassport,
   savePassenger,
 } from "../../src/repository/passenger.repository";
-import { createPassengerService } from "../../src/service/passengerService";
+import {
+  createPassengerService,
+  getPassengerByPassportNumberService,
+} from "../../src/service/passengerService";
 import { PassengerBody } from "../../src/types/passenger.types";
 jest.mock("../../src/repository/passenger.repository");
 
@@ -73,5 +76,34 @@ describe("test createPassengerService fucntion", () => {
 
     // Then
     await expect(action).rejects.toThrow("email already exists");
+  });
+});
+
+describe("test getPassengerByPassportNumberService function", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it("should return a passenger when found", async () => {
+    //Given
+    const passportNumber = "TN1547855";
+    const mockPassenger = { passportNumber };
+    (findPassengerByPassport as jest.Mock).mockResolvedValue(mockPassenger);
+
+    //When
+    const result = await getPassengerByPassportNumberService(passportNumber);
+
+    //Then
+    expect(result).toEqual(mockPassenger);
+  });
+  it("should return null when passenger not found", async () => {
+    //Given
+    const passportNumber = "roushfodilxg";
+    (findPassengerByPassport as jest.Mock).mockResolvedValue(null);
+
+    //When
+    const result = await getPassengerByPassportNumberService(passportNumber);
+
+    //Then
+    expect(result).toBeNull();
   });
 });
