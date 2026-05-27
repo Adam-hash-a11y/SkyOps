@@ -8,6 +8,9 @@ jest.mock("../../src/service/passengerService");
 const mockedCreatePassengerService = jest.mocked(
   passengerService.createPassengerService,
 );
+const mockedGetPassengerByPassportNumberService = jest.mocked(
+  passengerService.getPassengerByPassportNumberService,
+);
 
 const validBody = {
   firstName: "Adam",
@@ -138,5 +141,32 @@ describe("POST /api/passengers", () => {
     expect(result.body.message).toBe(
       "phone number must be a valid mobile number",
     );
+  });
+});
+
+describe("GET /api/passengers/:passportNumber", () => {
+  it("should return a passenger when found", async () => {
+    // Given
+    const mockPassenger = { passportNumber: "TN9875434" };
+    mockedGetPassengerByPassportNumberService.mockResolvedValue(
+      mockPassenger as any,
+    );
+
+    // When
+    const result = await request(app).get("/api/passengers/TN9875434");
+
+    // Then
+    expect(result.status).toBe(200);
+  });
+  it("should return 404 when passenger not found", async () => {
+    //Given
+    mockedGetPassengerByPassportNumberService.mockResolvedValue(null);
+
+    //When
+    const result = await request(app).get("/api/passengers/TNodfugdo6784");
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("passenger not found");
   });
 });
