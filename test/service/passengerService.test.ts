@@ -2,12 +2,14 @@ import {
   deletePassengerByPassportNumber,
   findPassengerByEmail,
   findPassengerByPassport,
+  findPassengersByFilters,
   savePassenger,
 } from "../../src/repository/passenger.repository";
 import {
   createPassengerService,
   deletePassengerService,
   getPassengerByPassportNumberService,
+  getPassengersByFilters,
 } from "../../src/service/passengerService";
 import { PassengerBody } from "../../src/types/passenger.types";
 jest.mock("../../src/repository/passenger.repository");
@@ -138,5 +140,31 @@ describe("test deletePassengerService function", () => {
 
     //Then
     expect(result).toBeNull();
+  });
+});
+describe("test getPassengersByFilters service function", () => {
+  it("should return passengers matching filters", async () => {
+    // Given
+    const filters = { firstName: "Adam" as string };
+    const mockPassengers = [{ firstName: "Adam" }];
+    (findPassengersByFilters as jest.Mock).mockResolvedValue(mockPassengers);
+
+    // When
+    const result = await getPassengersByFilters(filters);
+
+    // Then
+    expect(result).toEqual(mockPassengers);
+  });
+
+  it("should return empty array when no passengers match", async () => {
+    // Given
+    const filters = { firstName: "whatever" as string };
+    (findPassengersByFilters as jest.Mock).mockResolvedValue([]);
+
+    // When
+    const result = await getPassengersByFilters(filters);
+
+    // Then
+    expect(result).toEqual([]);
   });
 });

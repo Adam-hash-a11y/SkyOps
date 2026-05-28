@@ -15,6 +15,10 @@ const mockedDeletePassengerService = jest.mocked(
   passengerService.deletePassengerService,
 );
 
+const mockedGetPassengersByFilters = jest.mocked(
+  passengerService.getPassengersByFilters,
+);
+
 const validBody = {
   firstName: "Adam",
   lastName: "Hamdi",
@@ -174,6 +178,29 @@ describe("GET /api/passengers/:passportNumber", () => {
     // Then
     expect(result.status).toBe(404);
     expect(result.body.message).toBe("passenger not found");
+  });
+});
+
+describe("GET /api/passengers", () => {
+  it("should return all passengers", async () => {
+    // Given
+    const mockPassengers = [{ firstName: "Adam" }];
+    mockedGetPassengersByFilters.mockResolvedValue(mockPassengers as any);
+
+    // When
+    const result = await request(app).get("/api/passengers");
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.passengers).toBeDefined();
+  });
+
+  it("should return 400 for invalid query param", async () => {
+    // When
+    const result = await request(app).get("/api/passengers?unknown=value");
+
+    // Then
+    expect(result.status).toBe(400);
   });
 });
 

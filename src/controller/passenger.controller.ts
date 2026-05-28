@@ -3,6 +3,7 @@ import {
   createPassengerService,
   deletePassengerService,
   getPassengerByPassportNumberService,
+  getPassengersByFilters,
 } from "../service/passengerService";
 import { PassengerBody } from "../types/passenger.types";
 
@@ -26,6 +27,19 @@ export const getPassenger = async (
     return res.status(404).json({ message: "passenger not found" });
   }
   return res.status(200).json(result);
+};
+
+export const getPassengers = async (req: Request, res: Response) => {
+  const { nationality, firstName, lastName, sortBy } = req.query;
+
+  const result = await getPassengersByFilters({
+    nationality: nationality as string,
+    firstName: firstName as string,
+    lastName: lastName as string,
+    sortBy: sortBy as string,
+  });
+
+  return res.status(200).json({ passengers: result });
 };
 
 export const deletePassenger = async (

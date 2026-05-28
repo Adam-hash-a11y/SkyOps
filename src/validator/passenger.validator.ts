@@ -112,3 +112,23 @@ export const isValidNationality = (nationality: string): boolean => {
   if (nationality !== validNationality) return false;
   return allowedNationalities.includes(validNationality);
 };
+
+export const isValidPassengerQueryParams = (
+  query: Record<string, unknown>,
+): boolean => {
+  for (const key of Object.keys(query)) {
+    if (
+      key !== "firstName" &&
+      key !== "lastName" &&
+      key !== "nationality" &&
+      key !== "sortBy"
+    )
+      return false;
+  }
+  return true;
+};
+
+export const isValidSortByFirstname = (sortKey: string): boolean => {
+  if (typeof sortKey !== "string") return false;
+  return sortKey === "firstName";
+};
