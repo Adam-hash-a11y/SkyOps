@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
   createPassengerService,
+  deletePassengerService,
   getPassengerByPassportNumberService,
 } from "../service/passengerService";
 import { PassengerBody } from "../types/passenger.types";
@@ -25,4 +26,15 @@ export const getPassenger = async (
     return res.status(404).json({ message: "passenger not found" });
   }
   return res.status(200).json(result);
+};
+
+export const deletePassenger = async (
+  req: Request<{ passportNumber: string }>,
+  res: Response,
+) => {
+  const result = await deletePassengerService(req.params.passportNumber);
+  if (!result) {
+    return res.status(404).json({ message: "passenger not found" });
+  }
+  return res.status(200).json({ message: "passenger deleted successfully" });
 };

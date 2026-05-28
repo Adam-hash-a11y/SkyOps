@@ -1,4 +1,5 @@
 import {
+    deletePassengerByPassportNumber,
   findPassengerByEmail,
   findPassengerByPassport,
   savePassenger,
@@ -23,4 +24,8 @@ export const getPassengerByPassportNumberService = async (
   passportNumber: string,
 ) => {
   return await findPassengerByPassport(passportNumber);
+};
+
+export const deletePassengerService = async (passportNumber: string) => {
+  return await deletePassengerByPassportNumber(passportNumber);
 };

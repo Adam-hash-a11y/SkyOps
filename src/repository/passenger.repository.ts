@@ -17,3 +17,9 @@ export const findPassengerByPassport = async (passportNumber: string) => {
 export const findPassengerByEmail = async (email: string) => {
   return await PassengerModel.findOne({ email });
 };
+
+export const deletePassengerByPassportNumber = async (
+  passportNumber: string,
+) => {
+  return await PassengerModel.findOneAndDelete({ passportNumber });
+};
