@@ -197,7 +197,7 @@ describe("GET /api/passengers", () => {
 
   it("should return 400 for invalid query param", async () => {
     // When
-    const result = await request(app).get("/api/passenegrs?unknown=value");
+    const result = await request(app).get("/api/passengers?unknown=value");
 
     // Then
     expect(result.status).toBe(400);
