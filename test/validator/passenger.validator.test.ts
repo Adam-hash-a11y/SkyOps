@@ -7,6 +7,8 @@ import {
   isValidDateOfBirth,
   isValidPassengerBody,
   isValidNationality,
+  isValidPassengerQueryParams,
+  isValidSortByFirstname,
 } from "../../src/validator/passenger.validator";
 
 describe("test isValidEmail validator function", () => {
@@ -241,6 +243,63 @@ describe("test isValidNationality validator function", () => {
     const result = isValidNationality(nationality);
 
     // Then
+    expect(result).toBe(false);
+  });
+});
+
+describe("test isValidPassengerQueryParams function", () => {
+  it("it should return true for valid query params", () => {
+    //Given
+    const query = { firstName: "Renata", lastName: "Galsc" };
+
+    //When
+    const result = isValidPassengerQueryParams(query);
+
+    //Then
+    expect(result).toBe(true);
+  });
+  it("it should return false for invalid query params", () => {
+    //Given
+    const query = { unknow: "whatever" };
+
+    //When
+    const result = isValidPassengerQueryParams(query);
+
+    //Then
+    expect(result).toBe(false);
+  });
+});
+
+describe("test isValidSortByFirstname fucntion", () => {
+  it("should return true for firstName", () => {
+    //Given
+    const sortKey = "firstName";
+
+    //When
+    const result = isValidSortByFirstname(sortKey);
+
+    //Then
+    expect(result).toBe(true);
+  });
+  it("should return false for invalid sort key", () => {
+    //Given
+    const sortKey = "whatever";
+
+    //When
+    const result = isValidSortByFirstname(sortKey);
+
+    //Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false if sort key is not of type string", () => {
+    //Given
+    const sortKey = 123 as unknown as string;
+
+    //When
+    const result = isValidSortByFirstname(sortKey);
+
+    //Then
     expect(result).toBe(false);
   });
 });
