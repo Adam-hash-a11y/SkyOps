@@ -4,6 +4,7 @@ import {
   deletePassengerService,
   getPassengerByPassportNumberService,
   getPassengersByFilters,
+  updatePassengerService,
 } from "../service/passengerService";
 import { PassengerBody } from "../types/passenger.types";
 
@@ -51,4 +52,23 @@ export const deletePassenger = async (
     return res.status(404).json({ message: "passenger not found" });
   }
   return res.status(200).json({ message: "passenger deleted successfully" });
+};
+
+export const updatePassenger = async (
+  req: Request<{ passportNumber: string }>,
+  res: Response,
+) => {
+  const result = await updatePassengerService(
+    req.params.passportNumber,
+    req.body as Partial<PassengerBody>,
+  );
+
+  if (!result) {
+    return res.status(404).json({ message: "Passenger not found" });
+  }
+
+  return res.status(200).json({
+    message: "passenger updated successfully",
+    passenger: result,
+  });
 };
