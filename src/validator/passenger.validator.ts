@@ -132,3 +132,24 @@ export const isValidSortByFirstname = (sortKey: string): boolean => {
   if (typeof sortKey !== "string") return false;
   return sortKey === "firstName";
 };
+
+export const isValidUpdatePassengerBody = (
+  passenger: PassengerBody,
+): boolean => {
+  if (typeof passenger !== "object" || passenger === null) return false;
+
+  for (const key of Object.keys(passenger)) {
+    if (
+      key !== "firstName" &&
+      key !== "lastName" &&
+      key !== "nationality" &&
+      key !== "passportNumber" &&
+      key !== "dateOfBirth" &&
+      key !== "email" &&
+      key !== "phoneNumber"
+    )
+      return false;
+  }
+
+  return true;
+};
