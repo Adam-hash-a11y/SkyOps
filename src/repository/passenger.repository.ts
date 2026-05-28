@@ -44,3 +44,14 @@ export const findPassengersByFilters = async (filters: {
     filters.sortBy === "firstName" ? { firstName: 1 } : {},
   );
 };
+
+export const updatePassengerByPassportNumber = async (
+  passportNumber: string,
+  updates: Partial<PassengerBody>,
+) => {
+  return await PassengerModel.findOneAndUpdate(
+    { passportNumber },
+    { $set: updates },
+    { returnDocument: "after" },
+  );
+};
