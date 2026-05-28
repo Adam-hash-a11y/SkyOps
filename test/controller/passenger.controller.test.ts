@@ -11,6 +11,9 @@ const mockedCreatePassengerService = jest.mocked(
 const mockedGetPassengerByPassportNumberService = jest.mocked(
   passengerService.getPassengerByPassportNumberService,
 );
+const mockedDeletePassengerService = jest.mocked(
+  passengerService.deletePassengerService,
+);
 
 const validBody = {
   firstName: "Adam",
@@ -145,6 +148,9 @@ describe("POST /api/passengers", () => {
 });
 
 describe("GET /api/passengers/:passportNumber", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it("should return a passenger when found", async () => {
     // Given
     const mockPassenger = { passportNumber: "TN9875434" };
@@ -164,6 +170,35 @@ describe("GET /api/passengers/:passportNumber", () => {
 
     //When
     const result = await request(app).get("/api/passengers/TNodfugdo6784");
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("passenger not found");
+  });
+});
+
+describe("DELETE /api/passengers/:passportNumber", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it("should delete a passenger and return 200", async () => {
+    // Given
+    const mockPassenger = { passportNumber: "TN9875434" };
+    mockedDeletePassengerService.mockResolvedValue(mockPassenger as any);
+
+    // When
+    const result = await request(app).delete("/api/passengers/TN9875434");
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.message).toBe("passenger deleted successfully");
+  });
+  it("should return 404 when passenger not found", async () => {
+    //Given
+    mockedDeletePassengerService.mockResolvedValue(null);
+
+    //When
+    const result = await request(app).delete("/api/passengers/TNodfugdo6784");
 
     // Then
     expect(result.status).toBe(404);
