@@ -19,6 +19,10 @@ const mockedGetPassengersByFilters = jest.mocked(
   passengerService.getPassengersByFilters,
 );
 
+const mockedUpdatePassengerService = jest.mocked(
+  passengerService.updatePassengerService,
+);
+
 const validBody = {
   firstName: "Adam",
   lastName: "Hamdi",
@@ -230,5 +234,50 @@ describe("DELETE /api/passengers/:passportNumber", () => {
     // Then
     expect(result.status).toBe(404);
     expect(result.body.message).toBe("passenger not found");
+  });
+});
+
+describe("PATCH /api/passengers/:passportNumber", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should update a passenger and return 200", async () => {
+    // Given
+    const mockPassenger = { passportNumber: "TN13234657", firstName: "Adam" };
+    mockedUpdatePassengerService.mockResolvedValue(mockPassenger as any);
+
+    // When
+    const result = await request(app)
+      .patch("/api/passengers/TN13234657")
+      .send({ firstName: "Adam" });
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.passenger).toBeDefined();
+  });
+
+  it("should return 404 when passenger not found", async () => {
+    // Given
+    mockedUpdatePassengerService.mockResolvedValue(null);
+
+    // When
+    const result = await request(app)
+      .patch("/api/passengers/TNkdfkbcfkdf74521")
+      .send({ firstName: "Adam" });
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("Passenger not found");
+  });
+
+  it("should return 400 for invalid body", async () => {
+    // When
+    const result = await request(app)
+      .patch("/api/passengers/TN465454")
+      .send({ unknown: "TN111111" });
+
+    // Then
+    expect(result.status).toBe(400);
   });
 });

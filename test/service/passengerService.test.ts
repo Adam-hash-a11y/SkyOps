@@ -4,12 +4,14 @@ import {
   findPassengerByPassport,
   findPassengersByFilters,
   savePassenger,
+  updatePassengerByPassportNumber,
 } from "../../src/repository/passenger.repository";
 import {
   createPassengerService,
   deletePassengerService,
   getPassengerByPassportNumberService,
   getPassengersByFilters,
+  updatePassengerService,
 } from "../../src/service/passengerService";
 import { PassengerBody } from "../../src/types/passenger.types";
 jest.mock("../../src/repository/passenger.repository");
@@ -166,5 +168,42 @@ describe("test getPassengersByFilters service function", () => {
 
     // Then
     expect(result).toEqual([]);
+  });
+});
+describe("test updatePassengerService function", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should update and return the passenger", async () => {
+    // Given
+    const passportNumber = "TN7418754";
+    const updates: Partial<PassengerBody> = { firstName: "Galsc" };
+    const mockPassenger = { passportNumber, firstName: "Galsc" };
+    (findPassengerByPassport as jest.Mock).mockResolvedValue({
+      passportNumber,
+    });
+    (updatePassengerByPassportNumber as jest.Mock).mockResolvedValue(
+      mockPassenger,
+    );
+
+    // When
+    const result = await updatePassengerService(passportNumber, updates);
+
+    // Then
+    expect(result).toEqual(mockPassenger);
+  });
+
+  it("should return null when passenger not found", async () => {
+    // Given
+    const passportNumber = "TN12345678";
+    const updates: Partial<PassengerBody> = { firstName: "Adam" };
+    (findPassengerByPassport as jest.Mock).mockResolvedValue(null);
+
+    // When
+    const result = await updatePassengerService(passportNumber, updates);
+
+    // Then
+    expect(result).toBeNull();
   });
 });

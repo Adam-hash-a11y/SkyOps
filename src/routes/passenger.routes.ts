@@ -4,10 +4,12 @@ import {
   deletePassenger,
   getPassenger,
   getPassengers,
+  updatePassenger,
 } from "../controller/passenger.controller";
 import { validateCreatePassenger } from "../middleware/ValidatePassengerCreation.middleware";
 import { validatePassportNumber } from "../middleware/validatePassportNumber.middleware";
 import { validateGetPassengers } from "../middleware/validateGetPassengers.middleware";
+import { validateUpdatePassenger } from "../middleware/validateUpdatePassenger.middelware";
 
 export const passengersRouter = express.Router();
 
@@ -18,4 +20,10 @@ passengersRouter.delete(
   "/:passportNumber",
   validatePassportNumber,
   deletePassenger,
+);
+passengersRouter.patch(
+  "/:passportNumber",
+  validatePassportNumber,
+  validateUpdatePassenger,
+  updatePassenger,
 );

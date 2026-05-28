@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PassengerBody } from "../../src/types/passenger.types";
 import {
   isValidEmail,
@@ -9,6 +10,7 @@ import {
   isValidNationality,
   isValidPassengerQueryParams,
   isValidSortByFirstname,
+  isValidUpdatePassengerBody,
 } from "../../src/validator/passenger.validator";
 
 describe("test isValidEmail validator function", () => {
@@ -300,6 +302,30 @@ describe("test isValidSortByFirstname fucntion", () => {
     const result = isValidSortByFirstname(sortKey);
 
     //Then
+    expect(result).toBe(false);
+  });
+});
+
+describe("test isValidUpdatePassengerBody validator function", () => {
+  it("should return true for valid update body", () => {
+    // Given
+    const body = { firstName: "Renata" };
+
+    // When
+    const result = isValidUpdatePassengerBody(body as any);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false for unknown key", () => {
+    // Given
+    const body = { unknown: "value" };
+
+    // When
+    const result = isValidUpdatePassengerBody(body as any);
+
+    // Then
     expect(result).toBe(false);
   });
 });

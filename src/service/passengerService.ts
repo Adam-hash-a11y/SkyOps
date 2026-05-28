@@ -1,9 +1,10 @@
 import {
-    deletePassengerByPassportNumber,
+  deletePassengerByPassportNumber,
   findPassengerByEmail,
   findPassengerByPassport,
   findPassengersByFilters,
   savePassenger,
+  updatePassengerByPassportNumber,
 } from "../repository/passenger.repository";
 import { PassengerBody } from "../types/passenger.types";
 
@@ -37,4 +38,15 @@ export const getPassengersByFilters = async (filters: {
 
 export const deletePassengerService = async (passportNumber: string) => {
   return await deletePassengerByPassportNumber(passportNumber);
+};
+
+export const updatePassengerService = async (
+  passportNumber: string,
+  updates: Partial<PassengerBody>,
+) => {
+  const existingPassenger = await findPassengerByPassport(passportNumber);
+  if (!existingPassenger) {
+    return null;
+  }
+  return await updatePassengerByPassportNumber(passportNumber, updates);
 };
