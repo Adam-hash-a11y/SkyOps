@@ -23,3 +23,24 @@ export const deletePassengerByPassportNumber = async (
 ) => {
   return await PassengerModel.findOneAndDelete({ passportNumber });
 };
+
+export const findPassengersByFilters = async (filters: {
+  nationality?: string;
+  firstName?: string;
+  lastName?: string;
+  sortBy?: string;
+}) => {
+  const filter: Record<string, string> = {};
+  if (filters.nationality) {
+    filter.nationality = filters.nationality;
+  }
+  if (filters.firstName) {
+    filter.firstName = filters.firstName;
+  }
+  if (filters.lastName) {
+    filter.lastName = filters.lastName;
+  }
+  return await PassengerModel.find(filter).sort(
+    filters.sortBy === "firstName" ? { firstName: 1 } : {},
+  );
+};
