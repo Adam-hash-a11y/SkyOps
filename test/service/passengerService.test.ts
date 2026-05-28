@@ -1,10 +1,12 @@
 import {
+  deletePassengerByPassportNumber,
   findPassengerByEmail,
   findPassengerByPassport,
   savePassenger,
 } from "../../src/repository/passenger.repository";
 import {
   createPassengerService,
+  deletePassengerService,
   getPassengerByPassportNumberService,
 } from "../../src/service/passengerService";
 import { PassengerBody } from "../../src/types/passenger.types";
@@ -102,6 +104,37 @@ describe("test getPassengerByPassportNumberService function", () => {
 
     //When
     const result = await getPassengerByPassportNumberService(passportNumber);
+
+    //Then
+    expect(result).toBeNull();
+  });
+});
+
+describe("test deletePassengerService function", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it("should delete a passenger", async () => {
+    //Given
+    const passportNumber = "TN1547855";
+    const mockPassenger = { passportNumber };
+    (deletePassengerByPassportNumber as jest.Mock).mockResolvedValue(
+      mockPassenger,
+    );
+
+    //When
+    const result = await deletePassengerService(passportNumber);
+
+    //Then
+    expect(result).toEqual(mockPassenger);
+  });
+  it("should return null when passenger not found", async () => {
+    //Given
+    const passportNumber = "roushfodilxg";
+    (deletePassengerByPassportNumber as jest.Mock).mockResolvedValue(null);
+
+    //When
+    const result = await deletePassengerService(passportNumber);
 
     //Then
     expect(result).toBeNull();
