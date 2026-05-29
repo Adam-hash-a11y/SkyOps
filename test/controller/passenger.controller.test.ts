@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import { app } from "../../app";
 import * as passengerService from "../../src/service/passengerService";
 
@@ -32,6 +33,7 @@ const validBody = {
   email: "adam.hamdi@email.com",
   phoneNumber: "21656532009",
 };
+const token = jwt.sign({}, process.env.JWT_SECRET as string);
 
 describe("POST /api/passengers", () => {
   afterEach(() => {
@@ -43,7 +45,10 @@ describe("POST /api/passengers", () => {
     mockedCreatePassengerService.mockResolvedValue(validBody as any);
 
     // When
-    const result = await request(app).post("/api/passengers").send(validBody);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(validBody)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(201);
@@ -56,7 +61,10 @@ describe("POST /api/passengers", () => {
     );
 
     // When
-    const result = await request(app).post("/api/passengers").send(validBody);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(validBody)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(409);
@@ -70,7 +78,10 @@ describe("POST /api/passengers", () => {
     );
 
     // When
-    const result = await request(app).post("/api/passengers").send(validBody);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(validBody)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(409);
@@ -82,7 +93,10 @@ describe("POST /api/passengers", () => {
     const body = { ...validBody, firstName: 123 };
 
     // When
-    const result = await request(app).post("/api/passengers").send(body);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -95,7 +109,10 @@ describe("POST /api/passengers", () => {
     const body = { ...validBody, lastName: 123 };
 
     // When
-    const result = await request(app).post("/api/passengers").send(body);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -108,7 +125,10 @@ describe("POST /api/passengers", () => {
     const body = { ...validBody, passportNumber: "TN11" };
 
     // When
-    const result = await request(app).post("/api/passengers").send(body);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -121,7 +141,10 @@ describe("POST /api/passengers", () => {
     const body = { ...validBody, nationality: "TN11" };
 
     // When
-    const result = await request(app).post("/api/passengers").send(body);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -134,7 +157,10 @@ describe("POST /api/passengers", () => {
     const body = { ...validBody, dateOfBirth: "2090-05-27" };
 
     // When
-    const result = await request(app).post("/api/passengers").send(body);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -145,7 +171,10 @@ describe("POST /api/passengers", () => {
     const body = { ...validBody, phoneNumber: "abc867453" };
 
     // When
-    const result = await request(app).post("/api/passengers").send(body);
+    const result = await request(app)
+      .post("/api/passengers")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -167,7 +196,9 @@ describe("GET /api/passengers/:passportNumber", () => {
     );
 
     // When
-    const result = await request(app).get("/api/passengers/TN9875434");
+    const result = await request(app)
+      .get("/api/passengers/TN9875434")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -177,8 +208,9 @@ describe("GET /api/passengers/:passportNumber", () => {
     mockedGetPassengerByPassportNumberService.mockResolvedValue(null);
 
     //When
-    const result = await request(app).get("/api/passengers/TNodfugdo6784");
-
+    const result = await request(app)
+      .get("/api/passengers/TNodfugdo6784")
+      .set("Authorization", `Bearer ${token}`);
     // Then
     expect(result.status).toBe(404);
     expect(result.body.message).toBe("passenger not found");
@@ -192,7 +224,9 @@ describe("GET /api/passengers", () => {
     mockedGetPassengersByFilters.mockResolvedValue(mockPassengers as any);
 
     // When
-    const result = await request(app).get("/api/passengers");
+    const result = await request(app)
+      .get("/api/passengers")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -201,7 +235,9 @@ describe("GET /api/passengers", () => {
 
   it("should return 400 for invalid query param", async () => {
     // When
-    const result = await request(app).get("/api/passengers?unknown=value");
+    const result = await request(app)
+      .get("/api/passengers?unknown=value")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -218,7 +254,9 @@ describe("DELETE /api/passengers/:passportNumber", () => {
     mockedDeletePassengerService.mockResolvedValue(mockPassenger as any);
 
     // When
-    const result = await request(app).delete("/api/passengers/TN9875434");
+    const result = await request(app)
+      .delete("/api/passengers/TN9875434")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -229,7 +267,9 @@ describe("DELETE /api/passengers/:passportNumber", () => {
     mockedDeletePassengerService.mockResolvedValue(null);
 
     //When
-    const result = await request(app).delete("/api/passengers/TNodfugdo6784");
+    const result = await request(app)
+      .delete("/api/passengers/TNodfugdo6784")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(404);
@@ -250,7 +290,8 @@ describe("PATCH /api/passengers/:passportNumber", () => {
     // When
     const result = await request(app)
       .patch("/api/passengers/TN13234657")
-      .send({ firstName: "Adam" });
+      .send({ firstName: "Adam" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -264,7 +305,8 @@ describe("PATCH /api/passengers/:passportNumber", () => {
     // When
     const result = await request(app)
       .patch("/api/passengers/TNkdfkbcfkdf74521")
-      .send({ firstName: "Adam" });
+      .send({ firstName: "Adam" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(404);
@@ -275,7 +317,8 @@ describe("PATCH /api/passengers/:passportNumber", () => {
     // When
     const result = await request(app)
       .patch("/api/passengers/TN465454")
-      .send({ unknown: "TN111111" });
+      .send({ unknown: "TN111111" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
