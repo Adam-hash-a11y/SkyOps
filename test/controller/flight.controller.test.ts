@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import { app } from "../../app";
 import * as flightService from "../../src/service/flightService";
 
@@ -32,6 +33,7 @@ const validBody = {
   status: "scheduled",
   seats: { total: 180, booked: 0 },
 };
+const token = jwt.sign({}, process.env.JWT_SECRET as string);
 
 describe("POST /api/flights", () => {
   afterEach(() => {
@@ -43,7 +45,10 @@ describe("POST /api/flights", () => {
     mockedCreateFlightService.mockResolvedValue(validBody as any);
 
     // When
-    const result = await request(app).post("/api/flights").send(validBody);
+    const result = await request(app)
+      .post("/api/flights")
+      .send(validBody)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(201);
@@ -56,7 +61,10 @@ describe("POST /api/flights", () => {
     );
 
     // When
-    const result = await request(app).post("/api/flights").send(validBody);
+    const result = await request(app)
+      .post("/api/flights")
+      .send(validBody)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(409);
@@ -68,7 +76,10 @@ describe("POST /api/flights", () => {
     const body = { ...validBody, flightNumber: 123 };
 
     // When
-    const result = await request(app).post("/api/flights").send(body);
+    const result = await request(app)
+      .post("/api/flights")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -85,7 +96,10 @@ describe("POST /api/flights", () => {
     };
 
     // When
-    const result = await request(app).post("/api/flights").send(body);
+    const result = await request(app)
+      .post("/api/flights")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -99,7 +113,10 @@ describe("POST /api/flights", () => {
     };
 
     // When
-    const result = await request(app).post("/api/flights").send(body);
+    const result = await request(app)
+      .post("/api/flights")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -112,7 +129,9 @@ describe("GET /api/flights", () => {
     mockedGetFlightsByFilters.mockResolvedValue(mockFlights as any);
 
     // When
-    const result = await request(app).get("/api/flights");
+    const result = await request(app)
+      .get("/api/flights")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -121,7 +140,9 @@ describe("GET /api/flights", () => {
 
   it("should return 400 for invalid query param", async () => {
     // When
-    const result = await request(app).get("/api/flights?unknown=value");
+    const result = await request(app)
+      .get("/api/flights?unknown=value")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -135,7 +156,9 @@ describe("GET /api/flights/:flightNumber", () => {
     mockedGetFlightByFlightNumber.mockResolvedValue(mockFlight as any);
 
     // When
-    const result = await request(app).get("/api/flights/SKYOPS-101");
+    const result = await request(app)
+      .get("/api/flights/SKYOPS-101")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -146,7 +169,9 @@ describe("GET /api/flights/:flightNumber", () => {
     mockedGetFlightByFlightNumber.mockResolvedValue(null);
 
     // When
-    const result = await request(app).get("/api/flights/SKYOPS-999");
+    const result = await request(app)
+      .get("/api/flights/SKYOPS-999")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(404);
@@ -167,7 +192,8 @@ describe("PATCH /api/flights/:flightNumber", () => {
     // When
     const result = await request(app)
       .patch("/api/flights/SKYOPS-101")
-      .send({ status: "delayed" });
+      .send({ status: "delayed" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -181,7 +207,8 @@ describe("PATCH /api/flights/:flightNumber", () => {
     // When
     const result = await request(app)
       .patch("/api/flights/SKYOPS-999")
-      .send({ status: "delayed" });
+      .send({ status: "delayed" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(404);
@@ -192,7 +219,8 @@ describe("PATCH /api/flights/:flightNumber", () => {
     // When
     const result = await request(app)
       .patch("/api/flights/SKYOPS-101")
-      .send({ flightNumber: "SKYOPS-999" });
+      .send({ flightNumber: "SKYOPS-999" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);
@@ -210,7 +238,9 @@ describe("DELETE /api/flights/:flightNumber", () => {
     mockedDeleteFlightService.mockResolvedValue(mockFlight as any);
 
     // When
-    const result = await request(app).delete("/api/flights/SKYOPS-101");
+    const result = await request(app)
+      .delete("/api/flights/SKYOPS-101")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(200);
@@ -222,7 +252,9 @@ describe("DELETE /api/flights/:flightNumber", () => {
     mockedDeleteFlightService.mockResolvedValue(null);
 
     // When
-    const result = await request(app).delete("/api/flights/SKYOPS-999");
+    const result = await request(app)
+      .delete("/api/flights/SKYOPS-999")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(404);
@@ -231,7 +263,9 @@ describe("DELETE /api/flights/:flightNumber", () => {
 
   it("should return 400 for invalid flight number", async () => {
     // When
-    const result = await request(app).delete("/api/flights/INVALID");
+    const result = await request(app)
+      .delete("/api/flights/INVALID")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(result.status).toBe(400);

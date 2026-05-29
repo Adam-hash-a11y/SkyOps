@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import { app } from "../../app";
 import * as ticketService from "../../src/service/ticketService";
 
@@ -17,6 +18,7 @@ const validTicket = {
   class: "economy",
   price: 120,
 };
+const token = jwt.sign({}, process.env.JWT_SECRET as string);
 
 describe("POST /api/tickets", () => {
   afterEach(() => jest.clearAllMocks());
@@ -26,7 +28,10 @@ describe("POST /api/tickets", () => {
     mockedBookTicket.mockResolvedValue(validTicket as any);
 
     // When
-    const res = await request(app).post("/api/tickets").send(validTicket);
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(validTicket)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(201);
@@ -37,7 +42,10 @@ describe("POST /api/tickets", () => {
     const badBody = { flight: 123 };
 
     // When
-    const res = await request(app).post("/api/tickets").send(badBody);
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(badBody)
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(400);
@@ -50,7 +58,9 @@ describe("GET /api/tickets", () => {
     mockedGetTickets.mockResolvedValue([validTicket] as any);
 
     // When
-    const res = await request(app).get("/api/tickets");
+    const res = await request(app)
+      .get("/api/tickets")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(200);
@@ -64,7 +74,9 @@ describe("GET /api/tickets/:id", () => {
     mockedGetTicketById.mockResolvedValue(validTicket as any);
 
     // When
-    const res = await request(app).get("/api/tickets/6a19aac202eacf3878cca9cf");
+    const res = await request(app)
+      .get("/api/tickets/6a19aac202eacf3878cca9cf")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(200);
@@ -75,7 +87,9 @@ describe("GET /api/tickets/:id", () => {
     mockedGetTicketById.mockResolvedValue(null);
 
     // When
-    const res = await request(app).get("/api/tickets/6a19aac202eacf3878cca9cf");
+    const res = await request(app)
+      .get("/api/tickets/6a19aac202eacf3878cca9cf")
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(404);
@@ -93,7 +107,8 @@ describe("PATCH /api/tickets/:id", () => {
     // When
     const res = await request(app)
       .patch("/api/tickets/6a19aac202eacf3878cca9cf")
-      .send({ status: "cancelled" });
+      .send({ status: "cancelled" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(200);
@@ -106,7 +121,8 @@ describe("PATCH /api/tickets/:id", () => {
     // When
     const res = await request(app)
       .patch(`/api/tickets/${invalidId}`)
-      .send({ status: "cancelled" });
+      .send({ status: "cancelled" })
+      .set("Authorization", `Bearer ${token}`);
 
     // Then
     expect(res.status).toBe(400);

@@ -23,6 +23,8 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
   eslint:
     runs-on: ubuntu-latest
