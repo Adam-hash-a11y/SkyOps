@@ -1,4 +1,18 @@
 services:
+  api:
+    build: .
+    container_name: skyops
+    ports:
+      - "5003:5003"
+    environment:
+      PORT: 5003
+      JWT_SECRET: 9f3c2a7b8d1e4f6c0a9b7d2e5f1c3a8b6d4e7f9012c3d4e5f6a7b8c9d0e1f2aa
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/myapp?authSource=admin
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app
+      - /app/node_modules
   mongodb:
     image: mongo:7
     container_name: skyops-express-mongodb
