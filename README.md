@@ -1,6 +1,6 @@
 # SkyOps API
 
-A REST API for airport management — handling flights, passengers and tickets with full CRUD operations, validation, and business logic connecting all three resources.
+A REST API for airport management — handling flights, passengers, tickets, and authentication with full CRUD operations, validation, and business logic connecting all resources.
 
 ---
 
@@ -11,25 +11,30 @@ A REST API for airport management — handling flights, passengers and tickets w
 - MongoDB + Mongoose
 - Docker
 - Jest + Supertest
+- JWT Authentication
 - Helmet + Rate Limiting
 - ESLint + Prettier + Husky
 
 ---
 
 ## Project Structure
-src/
-├── controller/
-├── middleware/
-├── model/
-├── repository/
-├── routes/
-├── service/
-├── types/
-└── validator/
-test/
-├── controller/
-├── service/
-└── validator/
+
+```text
+src
+├── controller
+├── middleware
+├── model
+├── repository
+├── routes
+├── service
+├── types
+└── validator
+
+test
+├── controller
+├── service
+└── validator
+```
 
 ---
 
@@ -44,8 +49,12 @@ npm install
 ## Environment Variables
 
 Create a `.env` file in the root:
+
+```env
 MONGO_URI=mongodb://admin:password123@localhost:27017/skyops?authSource=admin
 PORT=5100
+JWT_SECRET=your-secret-key
+```
 
 ## Run MongoDB with Docker
 
@@ -53,16 +62,51 @@ PORT=5100
 docker compose up -d
 ```
 
-## Run the server
+## Run the Server
 
 ```bash
 npm run dev
 ```
 
-## Run tests
+## Run Tests
 
 ```bash
 npm run test
+```
+
+---
+
+## Authentication
+
+The API uses JWT authentication.
+
+### Login
+
+| Method | Endpoint   | Description        |
+| ------ | ---------- | ------------------ |
+| POST   | /api/login | Generate JWT token |
+
+Example Request:
+
+```json
+{
+  "username": "admin",
+  "password": "password123"
+}
+```
+
+Example Response:
+
+```json
+{
+  "token": "jwt-token"
+}
+```
+
+Use the token for protected routes:
+
+```http
+Authorization: Bearer <token>
 ```
 
 ---
@@ -71,56 +115,61 @@ npm run test
 
 ### Flights
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | /api/flights | Create a flight |
-| GET | /api/flights | Get all flights |
-| GET | /api/flights?status=delayed | Filter by status |
-| GET | /api/flights?origin=TUN&destination=FRA | Filter by route |
-| GET | /api/flights?sortBy=departureTime | Sort by departure |
-| GET | /api/flights/:flightNumber | Get by flight number |
-| PATCH | /api/flights/:flightNumber | Update a flight |
-| DELETE | /api/flights/:flightNumber | Delete a flight |
+| Method | Endpoint                                | Description            |
+| ------ | --------------------------------------- | ---------------------- |
+| POST   | /api/flights                            | Create a flight        |
+| GET    | /api/flights                            | Get all flights        |
+| GET    | /api/flights?status=delayed             | Filter by status       |
+| GET    | /api/flights?origin=TUN&destination=FRA | Filter by route        |
+| GET    | /api/flights?sortBy=departureTime       | Sort by departure time |
+| GET    | /api/flights/:flightNumber              | Get by flight number   |
+| PATCH  | /api/flights/:flightNumber              | Update a flight        |
+| DELETE | /api/flights/:flightNumber              | Delete a flight        |
 
 ### Passengers
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | /api/passengers | Create a passenger |
-| GET | /api/passengers | Get all passengers |
-| GET | /api/passengers/:passportNumber | Get by passport number |
-| PATCH | /api/passengers/:passportNumber | Update a passenger |
-| DELETE | /api/passengers/:passportNumber | Delete a passenger |
+| Method | Endpoint                        | Description            |
+| ------ | ------------------------------- | ---------------------- |
+| POST   | /api/passengers                 | Create a passenger     |
+| GET    | /api/passengers                 | Get all passengers     |
+| GET    | /api/passengers/:passportNumber | Get by passport number |
+| PATCH  | /api/passengers/:passportNumber | Update a passenger     |
+| DELETE | /api/passengers/:passportNumber | Delete a passenger     |
 
 ### Tickets
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | /api/tickets | Book a ticket |
-| GET | /api/tickets | Get all tickets |
-| GET | /api/tickets/:id | Get by id |
-| GET | /api/tickets?flightId=x | Get tickets by flight |
-| GET | /api/tickets?passengerId=x | Get tickets by passenger |
-| DELETE | /api/tickets/:id | Cancel a ticket |
+| Method | Endpoint                   | Description              |
+| ------ | -------------------------- | ------------------------ |
+| POST   | /api/tickets               | Book a ticket            |
+| GET    | /api/tickets               | Get all tickets          |
+| GET    | /api/tickets/:id           | Get ticket by id         |
+| GET    | /api/tickets?flightId=x    | Get tickets by flight    |
+| GET    | /api/tickets?passengerId=x | Get tickets by passenger |
+| DELETE | /api/tickets/:id           | Cancel a ticket          |
 
 ---
 
 ## Business Logic
 
 - Flight numbers must follow the format `SKYOPS-XXXXX`
-- Origin and destination must be 3 letter uppercase IATA codes and cannot be the same
+- Origin and destination must be valid 3-letter uppercase IATA codes
+- Origin and destination cannot be the same
 - Departure time must be before arrival time
-- Seat numbers are unique per flight — the same seat can exist on different flights
+- Seat numbers are unique per flight
+- The same seat number may exist on different flights
 - Booking a ticket increments the flight's booked seats count
 - Cancelling a ticket decrements the flight's booked seats count
-- A flight cannot be overbooked beyond its total capacity
-- Duplicate passport numbers and emails are rejected
+- Flights cannot be overbooked beyond capacity
+- Duplicate passport numbers are rejected
+- Duplicate emails are rejected
 
 ---
 
 ## Validation
 
-Every endpoint has a dedicated middleware that validates the request before it reaches the controller. Validators are separated from middleware and tested independently.
+Every endpoint has a dedicated validation middleware that validates requests before they reach the controller layer.
+
+Validators are separated from middleware and tested independently.
 
 ---
 
@@ -140,7 +189,8 @@ npm run test
 
 ## Security
 
-- Helmet for HTTP security headers
-- Rate limiting — 10000 requests per 5 minutes
-- Input validation on every endpoint
-- Duplicate detection before hitting the database
+- JWT Authentication
+- Helmet security headers
+- Rate limiting (10000 requests per 5 minutes)
+- Request validation on every endpoint
+- Duplicate detection before database writes
