@@ -84,16 +84,11 @@ The API uses JWT authentication.
 
 | Method | Endpoint   | Description        |
 | ------ | ---------- | ------------------ |
-| POST   | /api/login | Generate JWT token |
+| GET    | /api/login | Generate JWT token |
 
 Example Request:
 
 ```json
-{
-  "username": "admin",
-  "password": "password123"
-}
-```
 
 Example Response:
 
