@@ -86,10 +86,6 @@ The API uses JWT authentication.
 | ------ | ---------- | ------------------ |
 | GET    | /api/login | Generate JWT token |
 
-Example Request:
-
-```json
-
 Example Response:
 
 ```json
