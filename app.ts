@@ -2,8 +2,15 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { router } from "./src/routes";
+import cors from "cors";
 
 export const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
+);
 
 app.use(express.json());
 
