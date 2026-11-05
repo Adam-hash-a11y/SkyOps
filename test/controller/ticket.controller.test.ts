@@ -19,7 +19,6 @@ const validTicket = {
   passenger: "6a19aa9702eacf3878cca9ce",
   seatNumber: "C12",
   class: "economy",
-  price: 120,
 };
 
 const mockFlight = {
@@ -59,6 +58,21 @@ describe("POST /api/tickets", () => {
 
     // Then
     expect(res.status).toBe(400);
+  });
+
+  it("should return 400 when the client sends a price", async () => {
+    // Given
+    const body = { ...validTicket, price: 1 };
+
+    // When
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("invalid or missing fields");
   });
 
   it("should return 400 when the seat letter does not match the class", async () => {
