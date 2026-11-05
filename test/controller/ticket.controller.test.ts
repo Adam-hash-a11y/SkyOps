@@ -4,15 +4,20 @@ import jwt from "jsonwebtoken";
 import { app } from "../../app";
 import * as ticketService from "../../src/service/ticketService";
 import * as flightRepository from "../../src/repository/flight.repository";
+import * as passengerRepository from "../../src/repository/passenger.repository";
 
 jest.mock("../../src/service/ticketService");
 jest.mock("../../src/repository/flight.repository");
+jest.mock("../../src/repository/passenger.repository");
 
 const mockedBookTicket = jest.mocked(ticketService.bookTicketService);
 const mockedGetTickets = jest.mocked(ticketService.getTicketsService);
 const mockedGetTicketById = jest.mocked(ticketService.getTicketByIdService);
 const mockedCancelTicket = jest.mocked(ticketService.cancelTicketService);
 const mockedFindFlightById = jest.mocked(flightRepository.findFlightById);
+const mockedFindPassengerById = jest.mocked(
+  passengerRepository.findPassengerById,
+);
 
 const validTicket = {
   flight: "6a19aa7c02eacf3878cca9cd",
@@ -33,6 +38,7 @@ describe("POST /api/tickets", () => {
 
   it("should book a ticket and return 201", async () => {
     // Given
+    mockedFindPassengerById.mockResolvedValue({} as any);
     mockedFindFlightById.mockResolvedValue(mockFlight as any);
     mockedBookTicket.mockResolvedValue(validTicket as any);
 
@@ -91,6 +97,7 @@ describe("POST /api/tickets", () => {
 
   it("should return 400 when the seat does not exist in this class", async () => {
     // Given
+    mockedFindPassengerById.mockResolvedValue({} as any);
     mockedFindFlightById.mockResolvedValue(mockFlight as any);
     const body = { ...validTicket, seatNumber: "C99" };
 
@@ -107,6 +114,7 @@ describe("POST /api/tickets", () => {
 
   it("should return 404 when the flight does not exist", async () => {
     // Given
+    mockedFindPassengerById.mockResolvedValue({} as any);
     mockedFindFlightById.mockResolvedValue(null);
 
     // When
@@ -118,6 +126,21 @@ describe("POST /api/tickets", () => {
     // Then
     expect(res.status).toBe(404);
     expect(res.body.message).toBe("flight not found");
+  });
+
+  it("should return 404 when the passenger does not exist", async () => {
+    // Given
+    mockedFindPassengerById.mockResolvedValue(null);
+
+    // When
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(validTicket)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(res.status).toBe(404);
+    expect(res.body.message).toBe("passenger not found");
   });
 });
 
