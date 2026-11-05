@@ -2,7 +2,7 @@ name: SkyOps
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, refactor/backend-api]
 
 jobs:
   unit-tests:

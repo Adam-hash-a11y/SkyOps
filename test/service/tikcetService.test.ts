@@ -17,12 +17,23 @@ jest.mock("../../src/model/passenger.model");
 
 const mockFlight = {
   _id: "flight1",
-  seats: { total: 100, booked: 10 },
+  firstSeats: [{ seat: "A1", availability: true }],
+  businessSeats: [{ seat: "B1", availability: true }],
+  economySeats: [
+    { seat: "C1", availability: true },
+    { seat: "C2", availability: false },
+  ],
+  save: jest.fn(),
 };
 
 const mockPassenger = { _id: "pass1" };
 
 describe("bookTicketService", () => {
+  beforeEach(() => {
+    mockFlight.economySeats[0].availability = true;
+    mockFlight.economySeats[1].availability = false;
+  });
+
   afterEach(() => jest.clearAllMocks());
 
   it("should book ticket successfully", async () => {
@@ -35,7 +46,7 @@ describe("bookTicketService", () => {
     const data = {
       flight: "flight1",
       passenger: "pass1",
-      seatNumber: "A1",
+      seatNumber: "C1",
       class: "economy",
       price: 100,
     };
@@ -45,6 +56,91 @@ describe("bookTicketService", () => {
 
     // Then
     expect(result).toBeDefined();
+  });
+
+  it("should set the seat availability to false and save the flight", async () => {
+    // Given
+    (FlightModel.findById as jest.Mock).mockResolvedValue(mockFlight);
+    (PassengerModel.findById as jest.Mock).mockResolvedValue(mockPassenger);
+    (ticketRepo.findTicketByFlightAndSeat as jest.Mock).mockResolvedValue(null);
+    (ticketRepo.saveTicket as jest.Mock).mockResolvedValue({ id: "ticket1" });
+
+    const data = {
+      flight: "flight1",
+      passenger: "pass1",
+      seatNumber: "C1",
+      class: "economy",
+      price: 100,
+    };
+
+    // When
+    await bookTicketService(data as any);
+
+    // Then
+    expect(mockFlight.economySeats[0].availability).toBe(false);
+    expect(mockFlight.save).toHaveBeenCalled();
+  });
+
+  it("should throw when seat is already booked", async () => {
+    // Given
+    (FlightModel.findById as jest.Mock).mockResolvedValue(mockFlight);
+    (PassengerModel.findById as jest.Mock).mockResolvedValue(mockPassenger);
+    (ticketRepo.findTicketByFlightAndSeat as jest.Mock).mockResolvedValue({
+      id: "ticket1",
+    });
+
+    const data = {
+      flight: "flight1",
+      passenger: "pass1",
+      seatNumber: "C1",
+      class: "economy",
+      price: 100,
+    };
+
+    // When + Then
+    await expect(bookTicketService(data as any)).rejects.toThrow(
+      "seat already booked on this flight",
+    );
+  });
+
+  it("should throw when seat does not exist in this class", async () => {
+    // Given
+    (FlightModel.findById as jest.Mock).mockResolvedValue(mockFlight);
+    (PassengerModel.findById as jest.Mock).mockResolvedValue(mockPassenger);
+    (ticketRepo.findTicketByFlightAndSeat as jest.Mock).mockResolvedValue(null);
+
+    const data = {
+      flight: "flight1",
+      passenger: "pass1",
+      seatNumber: "C99",
+      class: "economy",
+      price: 100,
+    };
+
+    // When + Then
+    await expect(bookTicketService(data as any)).rejects.toThrow(
+      "seat does not exist in this class",
+    );
+  });
+
+  it("should throw when seat is not available", async () => {
+    // Given
+    (FlightModel.findById as jest.Mock).mockResolvedValue(mockFlight);
+    (PassengerModel.findById as jest.Mock).mockResolvedValue(mockPassenger);
+    (ticketRepo.findTicketByFlightAndSeat as jest.Mock).mockResolvedValue(null);
+
+    const data = {
+      flight: "flight1",
+      passenger: "pass1",
+      seatNumber: "C2",
+      class: "economy",
+      price: 100,
+    };
+
+    // When + Then
+    await expect(bookTicketService(data as any)).rejects.toThrow(
+      "seat is not available",
+    );
   });
 
   it("should throw when flight not found", async () => {

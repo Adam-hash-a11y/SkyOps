@@ -32,7 +32,9 @@ describe("test createFlightService fucntion", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
     };
     (findFlightByNumber as jest.Mock).mockResolvedValue(null);
     (saveFlight as jest.Mock).mockResolvedValue(flight);
@@ -42,6 +44,41 @@ describe("test createFlightService fucntion", () => {
 
     // Then
     expect(result).toEqual(flight);
+  });
+
+  it("should build the seats from the counts before saving", async () => {
+    // Given
+    const flight: FlightBody = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
+    };
+    (findFlightByNumber as jest.Mock).mockResolvedValue(null);
+    (saveFlight as jest.Mock).mockResolvedValue(flight);
+
+    // When
+    await createFlightService(flight);
+
+    // Then
+    const savedFlight = (saveFlight as jest.Mock).mock.calls[0][0];
+    expect(savedFlight.firstSeats).toEqual([
+      { seat: "A1", availability: true },
+      { seat: "A2", availability: true },
+    ]);
+    expect(savedFlight.businessSeats).toEqual([]);
+    expect(savedFlight.economySeats).toEqual([
+      { seat: "C1", availability: true },
+      { seat: "C2", availability: true },
+      { seat: "C3", availability: true },
+    ]);
   });
 
   it("should throw a flight number already exists error whhen flight number already exists", async () => {
@@ -55,7 +92,9 @@ describe("test createFlightService fucntion", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
     };
     (findFlightByNumber as jest.Mock).mockResolvedValue(flight);
 

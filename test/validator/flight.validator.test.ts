@@ -199,9 +199,9 @@ describe("test isValidStatus validator function", () => {
 });
 
 describe("test isValidSeats validator function", () => {
-  it("should return true for valid seats", () => {
+  it("should return true for valid seat counts", () => {
     // Given
-    const seats = { total: 180, booked: 0 };
+    const seats = { firstSeats: 2, businessSeats: 0, economySeats: 3 };
 
     // When
     const result = isValidSeats(seats);
@@ -210,9 +210,20 @@ describe("test isValidSeats validator function", () => {
     expect(result).toBe(true);
   });
 
-  it("should return false when booked exceeds total", () => {
+  it("should return true when only one class has seats", () => {
     // Given
-    const seats = { total: 100, booked: 150 };
+    const seats = { firstSeats: 0, businessSeats: 0, economySeats: 500 };
+
+    // When
+    const result = isValidSeats(seats);
+
+    // Then
+    expect(result).toBe(true);
+  });
+
+  it("should return false when all counts are 0", () => {
+    // Given
+    const seats = { firstSeats: 0, businessSeats: 0, economySeats: 0 };
 
     // When
     const result = isValidSeats(seats);
@@ -221,9 +232,31 @@ describe("test isValidSeats validator function", () => {
     expect(result).toBe(false);
   });
 
-  it("should return false when total is 0", () => {
+  it("should return false when a count is above 500", () => {
     // Given
-    const seats = { total: 0, booked: 0 };
+    const seats = { firstSeats: 0, businessSeats: 0, economySeats: 501 };
+
+    // When
+    const result = isValidSeats(seats);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false when a count is negative", () => {
+    // Given
+    const seats = { firstSeats: 5, businessSeats: 0, economySeats: -1 };
+
+    // When
+    const result = isValidSeats(seats);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false when a count is not a whole number", () => {
+    // Given
+    const seats = { firstSeats: 2.5, businessSeats: 0, economySeats: 3 };
 
     // When
     const result = isValidSeats(seats);
@@ -232,6 +265,7 @@ describe("test isValidSeats validator function", () => {
     expect(result).toBe(false);
   });
 });
+
 describe("test isValidIATA validator function", () => {
   it("should return true for valid IATA code", () => {
     // Given
@@ -314,6 +348,7 @@ describe("test isValidSortByDepartureTime validator function", () => {
     expect(result).toBe(false);
   });
 });
+
 describe("test isValidUpdateFlightBody validator function", () => {
   it("should return true for valid update body", () => {
     // Given
@@ -347,6 +382,17 @@ describe("test isValidUpdateFlightBody validator function", () => {
     // Then
     expect(result).toBe(false);
   });
+
+  it("should return false when a seat field is in body", () => {
+    // Given
+    const body = { firstSeats: 5 };
+
+    // When
+    const result = isValidUpdateFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
 });
 
 describe("test isValidFlightBody validator function", () => {
@@ -361,7 +407,9 @@ describe("test isValidFlightBody validator function", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
     };
 
     // When
@@ -382,7 +430,9 @@ describe("test isValidFlightBody validator function", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
       extra: "field",
     };
 
@@ -403,7 +453,31 @@ describe("test isValidFlightBody validator function", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
+    };
+
+    // When
+    const result = isValidFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false when a seat count is missing", () => {
+    // Given
+    const body = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      firstSeats: 2,
+      economySeats: 3,
     };
 
     // When

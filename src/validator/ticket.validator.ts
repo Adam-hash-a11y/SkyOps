@@ -24,7 +24,7 @@ export const isValidTicketBody = (ticket: TicketBody): boolean => {
 
 export const isValidSeatNumber = (seat: string): boolean => {
   if (typeof seat !== "string") return false;
-  return /^[A-Z][0-9]{1,2}$/.test(seat);
+  return /^[A-C][0-9]{1,3}$/.test(seat);
 };
 
 export const isValidTicketClass = (cls: string): boolean => {

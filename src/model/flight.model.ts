@@ -2,6 +2,14 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
+const seatSchema = new Schema(
+  {
+    seat: { type: String, required: true },
+    availability: { type: Boolean, required: true, default: true },
+  },
+  { _id: false },
+);
+
 const flightSchema = new Schema(
   {
     flightNumber: { type: String, required: true, unique: true },
@@ -20,10 +28,10 @@ const flightSchema = new Schema(
       default: "scheduled",
       required: true,
     },
-    seats: {
-      total: { type: Number, required: true },
-      booked: { type: Number, required: true, default: 0 },
-    },
+
+    firstSeats: { type: [seatSchema], required: true, default: [] },
+    businessSeats: { type: [seatSchema], required: true, default: [] },
+    economySeats: { type: [seatSchema], required: true, default: [] },
   },
   { timestamps: true },
 );
