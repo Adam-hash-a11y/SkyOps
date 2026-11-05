@@ -1,7 +1,7 @@
+import { SavedTicketBody } from "../types/ticket.types";
 import { TicketModel } from "../model/ticket.model";
-import { TicketBody } from "../types/ticket.types";
 
-export const saveTicket = async (ticket: TicketBody) => {
+export const saveTicket = async (ticket: SavedTicketBody) => {
   try {
     const doc = new TicketModel(ticket);
     return await doc.save();
