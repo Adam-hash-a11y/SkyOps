@@ -31,7 +31,9 @@ const validBody = {
     arrivalTime: new Date("2026-06-01T11:00:00"),
   },
   status: "scheduled",
-  seats: { total: 180, booked: 0 },
+  firstSeats: 2,
+  businessSeats: 0,
+  economySeats: 3,
 };
 const token = jwt.sign({}, process.env.JWT_SECRET as string);
 
@@ -121,7 +123,41 @@ describe("POST /api/flights", () => {
     // Then
     expect(result.status).toBe(400);
   });
+
+  it("should return 400 when all seat counts are 0", async () => {
+    // Given
+    const body = {
+      ...validBody,
+      firstSeats: 0,
+      businessSeats: 0,
+      economySeats: 0,
+    };
+
+    // When
+    const result = await request(app)
+      .post("/api/flights")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(400);
+  });
+
+  it("should return 400 when a seat count is above 500", async () => {
+    // Given
+    const body = { ...validBody, economySeats: 501 };
+
+    // When
+    const result = await request(app)
+      .post("/api/flights")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(400);
+  });
 });
+
 describe("GET /api/flights", () => {
   it("should return all flights", async () => {
     // Given
@@ -220,6 +256,17 @@ describe("PATCH /api/flights/:flightNumber", () => {
     const result = await request(app)
       .patch("/api/flights/SKYOPS-101")
       .send({ flightNumber: "SKYOPS-999" })
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(400);
+  });
+
+  it("should return 400 when a seat field is in the body", async () => {
+    // When
+    const result = await request(app)
+      .patch("/api/flights/SKYOPS-101")
+      .send({ firstSeats: 5 })
       .set("Authorization", `Bearer ${token}`);
 
     // Then
