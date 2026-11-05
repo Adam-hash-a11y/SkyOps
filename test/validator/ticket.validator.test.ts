@@ -4,7 +4,6 @@ import {
   isValidTicketBody,
   isValidSeatNumber,
   isValidTicketClass,
-  isValidTicketPrice,
   isValidTicketQuery,
   isValidTicketId,
 } from "../../src/validator/ticket.validator";
@@ -17,7 +16,6 @@ describe("test isValidTicketBody validator function", () => {
       passenger: "664f1c2a9b1c2d3e4f5a6b8d",
       seatNumber: "A12",
       class: "economy",
-      price: 120,
     };
 
     // When
@@ -34,8 +32,24 @@ describe("test isValidTicketBody validator function", () => {
       passenger: "664f1c2a9b1c2d3e4f5a6b8d",
       seatNumber: "A12",
       class: "economy",
-      price: 120,
       status: "confirmed",
+    };
+
+    // When
+    const result = isValidTicketBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it("should return false when the client sends a price", () => {
+    // Given
+    const body = {
+      flight: "664f1c2a9b1c2d3e4f5a6b7c",
+      passenger: "664f1c2a9b1c2d3e4f5a6b8d",
+      seatNumber: "A12",
+      class: "economy",
+      price: 120,
     };
 
     // When
@@ -51,7 +65,6 @@ describe("test isValidTicketBody validator function", () => {
       flight: "664f1c2a9b1c2d3e4f5a6b7c",
       seatNumber: "A12",
       class: "economy",
-      price: 120,
     };
 
     // When
@@ -115,41 +128,6 @@ describe("test isValidTicketClass validator function", () => {
 
     // When
     const result = isValidTicketClass(cls as any);
-
-    // Then
-    expect(result).toBe(false);
-  });
-});
-
-describe("test isValidTicketPrice validator function", () => {
-  it("should return true for valid price", () => {
-    // Given
-    const price = 120;
-
-    // When
-    const result = isValidTicketPrice(price);
-
-    // Then
-    expect(result).toBe(true);
-  });
-
-  it("should return false for negative price", () => {
-    // Given
-    const price = -50;
-
-    // When
-    const result = isValidTicketPrice(price);
-
-    // Then
-    expect(result).toBe(false);
-  });
-
-  it("should return false for wrong type", () => {
-    // Given
-    const price = "120";
-
-    // When
-    const result = isValidTicketPrice(price as any);
 
     // Then
     expect(result).toBe(false);
