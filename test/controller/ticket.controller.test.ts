@@ -3,20 +3,29 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 import { app } from "../../app";
 import * as ticketService from "../../src/service/ticketService";
+import * as flightRepository from "../../src/repository/flight.repository";
 
 jest.mock("../../src/service/ticketService");
+jest.mock("../../src/repository/flight.repository");
 
 const mockedBookTicket = jest.mocked(ticketService.bookTicketService);
 const mockedGetTickets = jest.mocked(ticketService.getTicketsService);
 const mockedGetTicketById = jest.mocked(ticketService.getTicketByIdService);
 const mockedCancelTicket = jest.mocked(ticketService.cancelTicketService);
+const mockedFindFlightById = jest.mocked(flightRepository.findFlightById);
 
 const validTicket = {
   flight: "6a19aa7c02eacf3878cca9cd",
   passenger: "6a19aa9702eacf3878cca9ce",
-  seatNumber: "A12",
+  seatNumber: "C12",
   class: "economy",
   price: 120,
+};
+
+const mockFlight = {
+  economySeats: [{ seat: "C12", availability: true }],
+  businessSeats: [],
+  firstSeats: [],
 };
 const token = jwt.sign({}, process.env.JWT_SECRET as string);
 
@@ -25,6 +34,7 @@ describe("POST /api/tickets", () => {
 
   it("should book a ticket and return 201", async () => {
     // Given
+    mockedFindFlightById.mockResolvedValue(mockFlight as any);
     mockedBookTicket.mockResolvedValue(validTicket as any);
 
     // When
@@ -49,6 +59,51 @@ describe("POST /api/tickets", () => {
 
     // Then
     expect(res.status).toBe(400);
+  });
+
+  it("should return 400 when the seat letter does not match the class", async () => {
+    // Given
+    const body = { ...validTicket, seatNumber: "A1" };
+
+    // When
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(res.status).toBe(400);
+  });
+
+  it("should return 400 when the seat does not exist in this class", async () => {
+    // Given
+    mockedFindFlightById.mockResolvedValue(mockFlight as any);
+    const body = { ...validTicket, seatNumber: "C99" };
+
+    // When
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(body)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("seat does not exist in this class");
+  });
+
+  it("should return 404 when the flight does not exist", async () => {
+    // Given
+    mockedFindFlightById.mockResolvedValue(null);
+
+    // When
+    const res = await request(app)
+      .post("/api/tickets")
+      .send(validTicket)
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(res.status).toBe(404);
+    expect(res.body.message).toBe("flight not found");
   });
 });
 
