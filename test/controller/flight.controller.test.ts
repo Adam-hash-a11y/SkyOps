@@ -21,6 +21,9 @@ const mockedUpdateFlightService = jest.mocked(
 const mockedDeleteFlightService = jest.mocked(
   flightService.deleteFlightService,
 );
+const mockedGetFreeSeatsService = jest.mocked(
+  flightService.getFreeSeatsService,
+); // NEW
 
 const validBody = {
   flightNumber: "SKYOPS-101",
@@ -207,6 +210,88 @@ describe("GET /api/flights/:flightNumber", () => {
     // When
     const result = await request(app)
       .get("/api/flights/SKYOPS-999")
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(404);
+    expect(result.body.message).toBe("flight not found");
+  });
+});
+
+describe("GET /api/flights/:flightNumber/seats", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return the free seats and return 200", async () => {
+    // Given
+    const mockSeats = {
+      seats: [{ seat: "A1", class: "first" }],
+      counts: { first: 1, business: 0, economy: 0 },
+    };
+    mockedGetFreeSeatsService.mockResolvedValue(mockSeats);
+
+    // When
+    const result = await request(app)
+      .get("/api/flights/SKYOPS-101/seats")
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(result.body.seats).toBeDefined();
+    expect(result.body.counts).toBeDefined();
+  });
+
+  it("should pass the class filter to the service", async () => {
+    // Given
+    mockedGetFreeSeatsService.mockResolvedValue({
+      seats: [],
+      counts: { first: 0, business: 0, economy: 0 },
+    });
+
+    // When
+    const result = await request(app)
+      .get("/api/flights/SKYOPS-101/seats?class=first")
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(200);
+    expect(mockedGetFreeSeatsService).toHaveBeenCalledWith(
+      "SKYOPS-101",
+      "first",
+    );
+  });
+
+  it("should return 400 for an invalid class", async () => {
+    // When
+    const result = await request(app)
+      .get("/api/flights/SKYOPS-101/seats?class=test")
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(400);
+    expect(result.body.message).toBe(
+      "class must be first, business or economy",
+    );
+  });
+
+  it("should return 400 for an invalid flight number", async () => {
+    // When
+    const result = await request(app)
+      .get("/api/flights/test/seats")
+      .set("Authorization", `Bearer ${token}`);
+
+    // Then
+    expect(result.status).toBe(400);
+  });
+
+  it("should return 404 when flight not found", async () => {
+    // Given
+    mockedGetFreeSeatsService.mockResolvedValue(null);
+
+    // When
+    const result = await request(app)
+      .get("/api/flights/SKYOPS-999/seats")
       .set("Authorization", `Bearer ${token}`);
 
     // Then
