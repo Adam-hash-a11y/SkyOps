@@ -36,14 +36,27 @@ describe("test createFlightService fucntion", () => {
       businessSeats: 0,
       economySeats: 3,
     };
+    const savedData = {
+      flightNumber: "SKYOPS-101",
+      firstSeats: [
+        { seat: "A1", availability: false },
+        { seat: "A2", availability: true },
+      ],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
+
     (findFlightByNumber as jest.Mock).mockResolvedValue(null);
-    (saveFlight as jest.Mock).mockResolvedValue(flight);
+    (saveFlight as jest.Mock).mockResolvedValue({
+      ...savedData,
+      toObject: () => savedData,
+    });
 
     // When
     const result = await createFlightService(flight);
 
     // Then
-    expect(result).toEqual(flight);
+    expect(result).toEqual({ ...savedData, totalSeats: 3, bookedSeats: 1 });
   });
 
   it("should build the seats from the counts before saving", async () => {
@@ -61,8 +74,13 @@ describe("test createFlightService fucntion", () => {
       businessSeats: 0,
       economySeats: 3,
     };
+
+    const savedData = { firstSeats: [], businessSeats: [], economySeats: [] };
     (findFlightByNumber as jest.Mock).mockResolvedValue(null);
-    (saveFlight as jest.Mock).mockResolvedValue(flight);
+    (saveFlight as jest.Mock).mockResolvedValue({
+      ...savedData,
+      toObject: () => savedData,
+    });
 
     // When
     await createFlightService(flight);
@@ -110,14 +128,23 @@ describe("test getFlightByFlightNumber service function", () => {
   it("should return a flight when found", async () => {
     // Given
     const flightNumber = "SKYOPS-101";
-    const mockFlight = { flightNumber, airline: "Lufthansa" };
-    (findFlightByNumber as jest.Mock).mockResolvedValue(mockFlight);
+    const flightData = {
+      flightNumber,
+      airline: "Lufthansa",
+      firstSeats: [{ seat: "A1", availability: false }],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
+    (findFlightByNumber as jest.Mock).mockResolvedValue({
+      ...flightData,
+      toObject: () => flightData,
+    });
 
     // When
     const result = await getFlightByFlightNumber(flightNumber);
 
     // Then
-    expect(result).toEqual(mockFlight);
+    expect(result).toEqual({ ...flightData, totalSeats: 2, bookedSeats: 1 });
   });
 
   it("should return null when flight not found", async () => {
@@ -137,14 +164,22 @@ describe("test getFlightsByFilters service function", () => {
   it("should return flights matching filters", async () => {
     // Given
     const filters = { status: "scheduled" as FlightStatus };
-    const mockFlights = [{ flightNumber: "SKYOPS-101", status: "scheduled" }];
-    (findFlightsByFilters as jest.Mock).mockResolvedValue(mockFlights);
+    const flightData = {
+      flightNumber: "SKYOPS-101",
+      status: "scheduled",
+      firstSeats: [{ seat: "A1", availability: false }],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
+    (findFlightsByFilters as jest.Mock).mockResolvedValue([
+      { ...flightData, toObject: () => flightData },
+    ]);
 
     // When
     const result = await getFlightsByFilters(filters);
 
     // Then
-    expect(result).toEqual(mockFlights);
+    expect(result).toEqual([{ ...flightData, totalSeats: 2, bookedSeats: 1 }]);
   });
 
   it("should return empty array when no flights match", async () => {
@@ -168,15 +203,24 @@ describe("test updateFlightService function", () => {
     // Given
     const flightNumber = "SKYOPS-101";
     const updates: Partial<FlightBody> = { status: "delayed" };
-    const mockFlight = { flightNumber, status: "delayed" };
+    const flightData = {
+      flightNumber,
+      status: "delayed",
+      firstSeats: [{ seat: "A1", availability: false }],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
     (findFlightByNumber as jest.Mock).mockResolvedValue({ flightNumber });
-    (updateFlightByFlightNumber as jest.Mock).mockResolvedValue(mockFlight);
+    (updateFlightByFlightNumber as jest.Mock).mockResolvedValue({
+      ...flightData,
+      toObject: () => flightData,
+    });
 
     // When
     const result = await updateFlightService(flightNumber, updates);
 
     // Then
-    expect(result).toEqual(mockFlight);
+    expect(result).toEqual({ ...flightData, totalSeats: 2, bookedSeats: 1 });
   });
 
   it("should return null when flight not found", async () => {
