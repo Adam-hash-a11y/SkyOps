@@ -13,10 +13,17 @@ import { validateTicketId } from "../middleware/validateTicketId.middleware";
 import { validateCancelTicket } from "../middleware/validateUpdateTicket.middleware";
 import { authMiddleware } from "../middleware/auth.middelware";
 import { validateSeatExists } from "../middleware/validateSeatExists.middleware";
+import { validatePassengerExists } from "../middleware/validatePassengerExists.middleware";
 
 export const ticketsRouter = express.Router();
 ticketsRouter.use(authMiddleware);
-ticketsRouter.post("/", validateTicketBooking, validateSeatExists, bookTicket);
+ticketsRouter.post(
+  "/",
+  validateTicketBooking,
+  validatePassengerExists,
+  validateSeatExists,
+  bookTicket,
+);
 ticketsRouter.get("/", validateGetTickets, getTickets);
 
 ticketsRouter.get("/:id", validateTicketId, getTicket);
