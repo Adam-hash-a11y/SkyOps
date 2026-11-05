@@ -10,6 +10,7 @@ import {
   findTicketsByFlight,
 } from "../repository/ticket.repository";
 
+import { TICKET_PRICES } from "../constants/ticketPrices";
 import { Seat } from "../types/flight.types";
 import { TicketBody } from "../types/ticket.types";
 
@@ -41,7 +42,9 @@ export const bookTicketService = async (data: TicketBody) => {
   if (!bookedSeat) throw new Error("seat does not exist in this class");
   if (!bookedSeat.availability) throw new Error("seat is not available");
 
-  const ticket = await saveTicket(data);
+  const price = TICKET_PRICES[data.class];
+
+  const ticket = await saveTicket({ ...data, price });
 
   bookedSeat.availability = false;
   await flight.save();
