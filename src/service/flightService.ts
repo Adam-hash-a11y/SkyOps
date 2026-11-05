@@ -98,3 +98,45 @@ export const updateFlightService = async (
   }
   return { ...updatedFlight.toObject(), ...countSeats(updatedFlight) };
 };
+
+export const getFreeSeatsService = async (
+  flightNumber: string,
+  seatClass?: string,
+) => {
+  const flight = await findFlightByNumber(flightNumber);
+  if (!flight) {
+    return null;
+  }
+
+  const seats: { seat: string; class: string }[] = [];
+  const counts = { first: 0, business: 0, economy: 0 };
+
+  for (const element of flight.firstSeats) {
+    if (element.availability) {
+      counts.first++;
+      if (!seatClass || seatClass === "first") {
+        seats.push({ seat: element.seat, class: "first" });
+      }
+    }
+  }
+
+  for (const element of flight.businessSeats) {
+    if (element.availability) {
+      counts.business++;
+      if (!seatClass || seatClass === "business") {
+        seats.push({ seat: element.seat, class: "business" });
+      }
+    }
+  }
+
+  for (const element of flight.economySeats) {
+    if (element.availability) {
+      counts.economy++;
+      if (!seatClass || seatClass === "economy") {
+        seats.push({ seat: element.seat, class: "economy" });
+      }
+    }
+  }
+
+  return { seats, counts };
+};
