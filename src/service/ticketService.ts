@@ -9,6 +9,8 @@ import {
   findTicketsByPassenger,
   findTicketsByFlight,
 } from "../repository/ticket.repository";
+
+import { Seat } from "../types/flight.types";
 import { TicketBody } from "../types/ticket.types";
 
 export const bookTicketService = async (data: TicketBody) => {
@@ -24,19 +26,25 @@ export const bookTicketService = async (data: TicketBody) => {
   );
   if (seatTaken) throw new Error("seat already booked on this flight");
 
-  if (!flight.seats) {
-    throw new Error("flight seats information missing");
+  let classSeats: Seat[] = [];
+  if (data.class === "first") {
+    classSeats = flight.firstSeats;
+  }
+  if (data.class === "business") {
+    classSeats = flight.businessSeats;
+  }
+  if (data.class === "economy") {
+    classSeats = flight.economySeats;
   }
 
-  if (flight.seats.booked >= flight.seats.total) {
-    throw new Error("flight is fully booked");
-  }
+  const bookedSeat = classSeats.find((seat) => seat.seat === data.seatNumber);
+  if (!bookedSeat) throw new Error("seat does not exist in this class");
+  if (!bookedSeat.availability) throw new Error("seat is not available");
 
   const ticket = await saveTicket(data);
 
-  await FlightModel.findByIdAndUpdate(data.flight, {
-    $inc: { "seats.booked": 1 },
-  });
+  bookedSeat.availability = false;
+  await flight.save();
 
   return ticket;
 };
@@ -53,10 +61,6 @@ export const cancelTicketService = async (id: string) => {
   }
 
   const ticket = await cancelTicketById(id);
-
-  await FlightModel.findByIdAndUpdate(existingTicket.flight, {
-    $inc: { "seats.booked": -1 },
-  });
 
   return ticket;
 };
