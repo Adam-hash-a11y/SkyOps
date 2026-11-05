@@ -3,7 +3,6 @@ import {
   isValidTicketBody,
   isValidSeatNumber,
   isValidTicketClass,
-  isValidTicketPrice,
 } from "../validator/ticket.validator";
 
 import { TicketBody } from "../types/ticket.types";
@@ -46,12 +45,6 @@ export const validateTicketBooking = (
   if (ticket.class === "economy" && !ticket.seatNumber.startsWith("C")) {
     return res.status(400).json({
       message: "economy class seats start with C",
-    });
-  }
-
-  if (!isValidTicketPrice(ticket.price)) {
-    return res.status(400).json({
-      message: "price must be a positive number",
     });
   }
 

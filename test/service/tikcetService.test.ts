@@ -48,7 +48,6 @@ describe("bookTicketService", () => {
       passenger: "pass1",
       seatNumber: "C1",
       class: "economy",
-      price: 100,
     };
 
     // When
@@ -56,6 +55,10 @@ describe("bookTicketService", () => {
 
     // Then
     expect(result).toBeDefined();
+    expect(ticketRepo.saveTicket).toHaveBeenCalledWith({
+      ...data,
+      price: 200,
+    });
   });
 
   it("should set the seat availability to false and save the flight", async () => {
@@ -70,7 +73,6 @@ describe("bookTicketService", () => {
       passenger: "pass1",
       seatNumber: "C1",
       class: "economy",
-      price: 100,
     };
 
     // When
@@ -94,7 +96,6 @@ describe("bookTicketService", () => {
       passenger: "pass1",
       seatNumber: "C1",
       class: "economy",
-      price: 100,
     };
 
     // When + Then
@@ -114,7 +115,6 @@ describe("bookTicketService", () => {
       passenger: "pass1",
       seatNumber: "C99",
       class: "economy",
-      price: 100,
     };
 
     // When + Then
@@ -134,7 +134,6 @@ describe("bookTicketService", () => {
       passenger: "pass1",
       seatNumber: "C2",
       class: "economy",
-      price: 100,
     };
 
     // When + Then

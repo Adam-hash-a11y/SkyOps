@@ -3,21 +3,14 @@ import { TicketBody } from "../types/ticket.types";
 export const isValidTicketBody = (ticket: TicketBody): boolean => {
   if (typeof ticket !== "object" || ticket === null) return false;
 
-  const allowedKeys = new Set([
-    "flight",
-    "passenger",
-    "seatNumber",
-    "class",
-    "price",
-  ]);
+  const allowedKeys = new Set(["flight", "passenger", "seatNumber", "class"]);
 
   for (const key of Object.keys(ticket)) {
     if (!allowedKeys.has(key)) return false;
   }
 
   if (!ticket.flight || !ticket.passenger) return false;
-  if (!ticket.seatNumber || !ticket.class || ticket.price === undefined)
-    return false;
+  if (!ticket.seatNumber || !ticket.class) return false;
 
   return true;
 };
@@ -29,11 +22,6 @@ export const isValidSeatNumber = (seat: string): boolean => {
 
 export const isValidTicketClass = (cls: string): boolean => {
   return cls === "economy" || cls === "business" || cls === "first";
-};
-
-export const isValidTicketPrice = (price: number): boolean => {
-  if (typeof price !== "number") return false;
-  return price > 0;
 };
 
 export const isValidTicketQuery = (query: Record<string, unknown>) => {
