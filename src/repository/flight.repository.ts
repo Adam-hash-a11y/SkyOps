@@ -1,13 +1,21 @@
 import { FlightModel } from "../model/flight.model";
-import { FlightBody, FlightStatus } from "../types/flight.types";
+import {
+  FlightBody,
+  FlightStatus,
+  SavedFlightBody,
+} from "../types/flight.types";
 
-export const saveFlight = async (flight: FlightBody) => {
+export const saveFlight = async (flight: SavedFlightBody) => {
   try {
     const doc = new FlightModel(flight);
     return await doc.save();
   } catch (error) {
     throw new Error("Error saving flight", { cause: error });
   }
+};
+
+export const findFlightById = async (id: string) => {
+  return await FlightModel.findById(id);
 };
 
 export const findFlightByNumber = async (flightNumber: string) => {
