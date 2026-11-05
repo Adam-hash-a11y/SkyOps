@@ -7,6 +7,26 @@ import {
 } from "../repository/flight.repository";
 import { FlightBody, FlightStatus, Seat } from "../types/flight.types";
 
+const countSeats = (flight: {
+  firstSeats: Seat[];
+  businessSeats: Seat[];
+  economySeats: Seat[];
+}) => {
+  const allSeats = flight.firstSeats.concat(
+    flight.businessSeats,
+    flight.economySeats,
+  );
+
+  let bookedSeats = 0;
+  for (const element of allSeats) {
+    if (element.availability === false) {
+      bookedSeats++;
+    }
+  }
+
+  return { totalSeats: allSeats.length, bookedSeats };
+};
+
 export const createFlightService = async (flight: FlightBody) => {
   const isExistingFlight = await findFlightByNumber(flight.flightNumber);
   if (isExistingFlight) {
@@ -28,16 +48,21 @@ export const createFlightService = async (flight: FlightBody) => {
     economySeats.push({ seat: "C" + i, availability: true });
   }
 
-  return await saveFlight({
+  const savedFlight = await saveFlight({
     ...flight,
     firstSeats,
     businessSeats,
     economySeats,
   });
+  return { ...savedFlight.toObject(), ...countSeats(savedFlight) };
 };
 
 export const getFlightByFlightNumber = async (flightNumber: string) => {
-  return await findFlightByNumber(flightNumber);
+  const flight = await findFlightByNumber(flightNumber);
+  if (!flight) {
+    return null;
+  }
+  return { ...flight.toObject(), ...countSeats(flight) };
 };
 
 export const getFlightsByFilters = async (filters: {
@@ -46,7 +71,13 @@ export const getFlightsByFilters = async (filters: {
   status?: FlightStatus;
   sortBy?: string;
 }) => {
-  return await findFlightsByFilters(filters);
+  const flights = await findFlightsByFilters(filters);
+
+  const result = [];
+  for (const element of flights) {
+    result.push({ ...element.toObject(), ...countSeats(element) });
+  }
+  return result;
 };
 
 export const deleteFlightService = async (flightNumber: string) => {
@@ -61,5 +92,9 @@ export const updateFlightService = async (
   if (!existingFlight) {
     return null;
   }
-  return await updateFlightByFlightNumber(flightNumber, updates);
+  const updatedFlight = await updateFlightByFlightNumber(flightNumber, updates);
+  if (!updatedFlight) {
+    return null;
+  }
+  return { ...updatedFlight.toObject(), ...countSeats(updatedFlight) };
 };
