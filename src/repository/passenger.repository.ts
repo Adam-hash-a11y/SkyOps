@@ -10,6 +10,10 @@ export const savePassenger = async (passenger: PassengerBody) => {
   }
 };
 
+export const findPassengerById = async (id: string) => {
+  return await PassengerModel.findById(id);
+};
+
 export const findPassengerByPassport = async (passportNumber: string) => {
   return await PassengerModel.findOne({ passportNumber });
 };
