@@ -3,6 +3,7 @@ import {
   deleteFlightService,
   getFlightByFlightNumber,
   getFlightsByFilters,
+  getFreeSeatsService,
   updateFlightService,
 } from "../../src/service/flightService";
 import {
@@ -261,6 +262,69 @@ describe("test deleteFlightService function", () => {
 
     // When
     const result = await deleteFlightService(flightNumber);
+
+    // Then
+    expect(result).toBeNull();
+  });
+});
+
+describe("test getFreeSeatsService function", () => {
+  const flightData = {
+    flightNumber: "SKYOPS-101",
+    firstSeats: [
+      { seat: "A1", availability: false },
+      { seat: "A2", availability: true },
+    ],
+    businessSeats: [{ seat: "B1", availability: true }],
+    economySeats: [
+      { seat: "C1", availability: true },
+      { seat: "C2", availability: true },
+      { seat: "C3", availability: false },
+    ],
+  };
+
+  it("should return all free seats with their class and the counts", async () => {
+    // Given
+    (findFlightByNumber as jest.Mock).mockResolvedValue(flightData);
+
+    // When
+    const result = await getFreeSeatsService("SKYOPS-101");
+
+    // Then
+    expect(result).toEqual({
+      seats: [
+        { seat: "A2", class: "first" },
+        { seat: "B1", class: "business" },
+        { seat: "C1", class: "economy" },
+        { seat: "C2", class: "economy" },
+      ],
+      counts: { first: 1, business: 1, economy: 2 },
+    });
+  });
+
+  it("should return only the seats of the asked class but the counts of all classes", async () => {
+    // Given
+    (findFlightByNumber as jest.Mock).mockResolvedValue(flightData);
+
+    // When
+    const result = await getFreeSeatsService("SKYOPS-101", "economy");
+
+    // Then
+    expect(result).toEqual({
+      seats: [
+        { seat: "C1", class: "economy" },
+        { seat: "C2", class: "economy" },
+      ],
+      counts: { first: 1, business: 1, economy: 2 },
+    });
+  });
+
+  it("should return null when flight not found", async () => {
+    // Given
+    (findFlightByNumber as jest.Mock).mockResolvedValue(null);
+
+    // When
+    const result = await getFreeSeatsService("SKYOPS-999");
 
     // Then
     expect(result).toBeNull();
