@@ -17,3 +17,14 @@ export type SavedTicketBody = {
   price: number;
   status: TicketStatus;
 };
+
+export type BatchTicketItem = {
+  passenger: string;
+  seatNumber: string;
+  class: TicketClass;
+};
+
+export type BatchTicketBody = {
+  flight: string;
+  tickets: BatchTicketItem[];
+};
