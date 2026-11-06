@@ -131,6 +131,10 @@ export const isValidFlightBody = (flight: FlightBody): boolean => {
       return false;
   }
 
+  if (flight.route === null || flight.route === undefined) return false;
+
+  if (flight.schedule === null || flight.schedule === undefined) return false;
+
   for (const key of Object.keys(flight.route)) {
     if (key !== "origin" && key !== "destination") return false;
   }
@@ -151,10 +155,6 @@ export const isValidFlightBody = (flight: FlightBody): boolean => {
     flight.airline === ""
   )
     return false;
-
-  if (flight.route === null || flight.route === undefined) return false;
-
-  if (flight.schedule === null || flight.schedule === undefined) return false;
 
   if (flight.status === null || flight.status === undefined) return false;
 
