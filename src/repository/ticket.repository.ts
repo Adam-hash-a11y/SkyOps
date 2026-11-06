@@ -11,12 +11,14 @@ export const saveTicket = async (ticket: SavedTicketBody) => {
 };
 
 export const findAllTickets = async () => {
-  return await TicketModel.find().populate("flight").populate("passenger");
+  return await TicketModel.find()
+    .populate("flight", "flightNumber airline route schedule status")
+    .populate("passenger");
 };
 
 export const findTicketById = async (id: string) => {
   return await TicketModel.findById(id)
-    .populate("flight")
+    .populate("flight", "flightNumber airline route schedule status")
     .populate("passenger");
 };
 
@@ -28,7 +30,10 @@ export const findTicketByFlightAndSeat = async (
 };
 
 export const findTicketsByPassenger = async (passengerId: string) => {
-  return await TicketModel.find({ passenger: passengerId }).populate("flight");
+  return await TicketModel.find({ passenger: passengerId }).populate(
+    "flight",
+    "flightNumber airline route schedule status",
+  );
 };
 
 export const findTicketsByFlight = async (flightId: string) => {
@@ -39,6 +44,6 @@ export const cancelTicketById = async (id: string) => {
   return await TicketModel.findByIdAndUpdate(
     id,
     { status: "cancelled" },
-    { new: true },
+    { returnDocument: "after" },
   );
 };
