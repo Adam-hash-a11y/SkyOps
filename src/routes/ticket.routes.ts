@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  bookBatch,
   bookTicket,
   cancelTicket,
   getTicket,
@@ -14,6 +15,8 @@ import { validateCancelTicket } from "../middleware/validateUpdateTicket.middlew
 import { authMiddleware } from "../middleware/auth.middelware";
 import { validateSeatExists } from "../middleware/validateSeatExists.middleware";
 import { validatePassengerExists } from "../middleware/validatePassengerExists.middleware";
+import { validateBatchBooking } from "../middleware/validateBatchBooking.middleware";
+import { validateBatchExists } from "../middleware/validateBatchExists.middleware";
 
 export const ticketsRouter = express.Router();
 ticketsRouter.use(authMiddleware);
@@ -33,4 +36,11 @@ ticketsRouter.patch(
   validateTicketId,
   validateCancelTicket,
   cancelTicket,
+);
+
+ticketsRouter.post(
+  "/batch",
+  validateBatchBooking,
+  validateBatchExists,
+  bookBatch,
 );
