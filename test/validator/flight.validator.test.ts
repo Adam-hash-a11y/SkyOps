@@ -486,4 +486,46 @@ describe("test isValidFlightBody validator function", () => {
     // Then
     expect(result).toBe(false);
   });
+
+  it("should return false when route is missing", () => {
+    // Given
+    const body = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
+    };
+
+    // When
+    const result = isValidFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  // NEW
+  it("should return false when schedule is missing", () => {
+    // Given
+    const body = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      status: "scheduled",
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
+    };
+
+    // When
+    const result = isValidFlightBody(body as any);
+
+    // Then
+    expect(result).toBe(false);
+  });
 });

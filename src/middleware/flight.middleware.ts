@@ -26,11 +26,13 @@ export const validateCreateFlight = (
       message: "flight number must be a string and starts with SKYOPS-",
     });
   }
+
   if (!isValidAirline(flight.airline)) {
     return res
       .status(400)
-      .json({ message: "airline must be exactly 6 alphabetic characters." });
+      .json({ message: "airline must be at least 5 alphabetic characters." });
   }
+
   if (!isValidOriginDestination(flight.route)) {
     return res.status(400).json({
       message:
