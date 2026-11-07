@@ -30,14 +30,15 @@ export const findTicketByFlightAndSeat = async (
 };
 
 export const findTicketsByPassenger = async (passengerId: string) => {
-  return await TicketModel.find({ passenger: passengerId }).populate(
-    "flight",
-    "flightNumber airline route schedule status",
-  );
+  return await TicketModel.find({ passenger: passengerId })
+    .populate("flight", "flightNumber airline route schedule status")
+    .populate("passenger");
 };
 
 export const findTicketsByFlight = async (flightId: string) => {
-  return await TicketModel.find({ flight: flightId }).populate("passenger");
+  return await TicketModel.find({ flight: flightId })
+    .populate("flight", "flightNumber airline route schedule status")
+    .populate("passenger");
 };
 
 export const cancelTicketById = async (id: string) => {

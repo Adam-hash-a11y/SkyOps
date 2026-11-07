@@ -228,6 +228,7 @@ describe("GET /api/flights/:flightNumber/seats", () => {
     const mockSeats = {
       seats: [{ seat: "A1", class: "first" }],
       counts: { first: 1, business: 0, economy: 0 },
+      prices: { first: 900, business: 500, economy: 200 },
     };
     mockedGetFreeSeatsService.mockResolvedValue(mockSeats);
 
@@ -240,6 +241,7 @@ describe("GET /api/flights/:flightNumber/seats", () => {
     expect(result.status).toBe(200);
     expect(result.body.seats).toBeDefined();
     expect(result.body.counts).toBeDefined();
+    expect(result.body.prices).toBeDefined();
   });
 
   it("should pass the class filter to the service", async () => {
@@ -247,6 +249,7 @@ describe("GET /api/flights/:flightNumber/seats", () => {
     mockedGetFreeSeatsService.mockResolvedValue({
       seats: [],
       counts: { first: 0, business: 0, economy: 0 },
+      prices: { first: 900, business: 500, economy: 200 },
     });
 
     // When

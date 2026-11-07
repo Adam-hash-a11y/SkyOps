@@ -299,6 +299,7 @@ describe("test getFreeSeatsService function", () => {
         { seat: "C2", class: "economy" },
       ],
       counts: { first: 1, business: 1, economy: 2 },
+      prices: { first: 900, business: 500, economy: 200 },
     });
   });
 
@@ -316,6 +317,7 @@ describe("test getFreeSeatsService function", () => {
         { seat: "C2", class: "economy" },
       ],
       counts: { first: 1, business: 1, economy: 2 },
+      prices: { first: 900, business: 500, economy: 200 },
     });
   });
 
