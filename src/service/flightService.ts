@@ -1,3 +1,4 @@
+import { TICKET_PRICES } from "../constants/ticketPrices";
 import {
   deleteFlightByNumber,
   findFlightByNumber,
@@ -138,5 +139,5 @@ export const getFreeSeatsService = async (
     }
   }
 
-  return { seats, counts };
+  return { seats, counts, prices: TICKET_PRICES };
 };
