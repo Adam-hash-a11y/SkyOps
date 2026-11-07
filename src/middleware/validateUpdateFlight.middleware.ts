@@ -3,7 +3,6 @@ import {
   isValidAirline,
   isValidDepartureArrival,
   isValidOriginDestination,
-  isValidSeats,
   isValidStatus,
   isValidUpdateFlightBody,
 } from "../validator/flight.validator";
@@ -52,13 +51,5 @@ export const validateUpdateFlight = (
     });
   }
 
-  if (flight.seats !== undefined && !isValidSeats(flight.seats)) {
-    return res.status(400).json({
-      message:
-        "seats total must be positive number and booked cannot exceed total",
-    });
-  }
-
   next();
 };
-    

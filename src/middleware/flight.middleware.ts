@@ -26,11 +26,13 @@ export const validateCreateFlight = (
       message: "flight number must be a string and starts with SKYOPS-",
     });
   }
+
   if (!isValidAirline(flight.airline)) {
     return res
       .status(400)
-      .json({ message: "airline must be exactly 6 alphabetic characters." });
+      .json({ message: "airline must be at least 5 alphabetic characters." });
   }
+
   if (!isValidOriginDestination(flight.route)) {
     return res.status(400).json({
       message:
@@ -51,10 +53,16 @@ export const validateCreateFlight = (
     });
   }
 
-  if (!isValidSeats(flight.seats)) {
+  if (
+    !isValidSeats({
+      firstSeats: flight.firstSeats,
+      businessSeats: flight.businessSeats,
+      economySeats: flight.economySeats,
+    })
+  ) {
     return res.status(400).json({
       message:
-        "seats total must be positive number and booked cannot exceed total",
+        "first, business and economy seats must be whole numbers from 0 to 500 and at least one must be above 0",
     });
   }
 

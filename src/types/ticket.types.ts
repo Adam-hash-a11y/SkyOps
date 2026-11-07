@@ -6,7 +6,25 @@ export type TicketBody = {
   passenger: string;
   seatNumber: string;
   class: TicketClass;
+  status: TicketStatus;
+};
+
+export type SavedTicketBody = {
+  flight: string;
+  passenger: string;
+  seatNumber: string;
+  class: TicketClass;
   price: number;
   status: TicketStatus;
 };
-    
+
+export type BatchTicketItem = {
+  passenger: string;
+  seatNumber: string;
+  class: TicketClass;
+};
+
+export type BatchTicketBody = {
+  flight: string;
+  tickets: BatchTicketItem[];
+};

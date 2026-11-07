@@ -87,13 +87,31 @@ export const isValidFlightNumber = (flightNumber: unknown): boolean => {
 };
 
 export const isValidSeats = (seats: {
-  booked: number;
-  total: number;
+  firstSeats: number;
+  businessSeats: number;
+  economySeats: number;
 }): boolean => {
   if (!seats) return false;
-  if (!Number.isInteger(seats.total) || seats.total <= 0) return false;
-  if (!Number.isInteger(seats.booked) || seats.booked < 0) return false;
-  if (seats.booked > seats.total) return false;
+  if (
+    !Number.isInteger(seats.firstSeats) ||
+    seats.firstSeats < 0 ||
+    seats.firstSeats > 500
+  )
+    return false;
+  if (
+    !Number.isInteger(seats.businessSeats) ||
+    seats.businessSeats < 0 ||
+    seats.businessSeats > 500
+  )
+    return false;
+  if (
+    !Number.isInteger(seats.economySeats) ||
+    seats.economySeats < 0 ||
+    seats.economySeats > 500
+  )
+    return false;
+  if (seats.firstSeats + seats.businessSeats + seats.economySeats === 0)
+    return false;
   return true;
 };
 
@@ -106,20 +124,22 @@ export const isValidFlightBody = (flight: FlightBody): boolean => {
       key !== "route" &&
       key !== "schedule" &&
       key !== "status" &&
-      key !== "seats"
+      key !== "firstSeats" &&
+      key !== "businessSeats" &&
+      key !== "economySeats"
     )
       return false;
   }
+
+  if (flight.route === null || flight.route === undefined) return false;
+
+  if (flight.schedule === null || flight.schedule === undefined) return false;
 
   for (const key of Object.keys(flight.route)) {
     if (key !== "origin" && key !== "destination") return false;
   }
   for (const key of Object.keys(flight.schedule)) {
     if (key !== "departureTime" && key !== "arrivalTime") return false;
-  }
-
-  for (const key of Object.keys(flight.seats)) {
-    if (key !== "total" && key !== "booked") return false;
   }
 
   if (
@@ -136,13 +156,16 @@ export const isValidFlightBody = (flight: FlightBody): boolean => {
   )
     return false;
 
-  if (flight.route === null || flight.route === undefined) return false;
-
-  if (flight.schedule === null || flight.schedule === undefined) return false;
-
   if (flight.status === null || flight.status === undefined) return false;
 
-  if (flight.seats === null || flight.seats === undefined) return false;
+  if (flight.firstSeats === null || flight.firstSeats === undefined)
+    return false;
+
+  if (flight.businessSeats === null || flight.businessSeats === undefined)
+    return false;
+
+  if (flight.economySeats === null || flight.economySeats === undefined)
+    return false;
 
   return true;
 };
@@ -155,8 +178,7 @@ export const isValidUpdateFlightBody = (flight: FlightBody): boolean => {
       key !== "airline" &&
       key !== "route" &&
       key !== "schedule" &&
-      key !== "status" &&
-      key !== "seats"
+      key !== "status"
     )
       return false;
   }
@@ -170,12 +192,6 @@ export const isValidUpdateFlightBody = (flight: FlightBody): boolean => {
   if (flight.schedule !== undefined) {
     for (const key of Object.keys(flight.schedule)) {
       if (key !== "departureTime" && key !== "arrivalTime") return false;
-    }
-  }
-
-  if (flight.seats !== undefined) {
-    for (const key of Object.keys(flight.seats)) {
-      if (key !== "total" && key !== "booked") return false;
     }
   }
 

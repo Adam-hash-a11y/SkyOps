@@ -9,7 +9,11 @@ import {
   findTicketsByPassenger,
   findTicketsByFlight,
 } from "../repository/ticket.repository";
-import { TicketBody } from "../types/ticket.types";
+import { findFlightById } from "../repository/flight.repository";
+
+import { TICKET_PRICES } from "../constants/ticketPrices";
+import { Seat } from "../types/flight.types";
+import { BatchTicketBody, TicketBody } from "../types/ticket.types";
 
 export const bookTicketService = async (data: TicketBody) => {
   const flight = await FlightModel.findById(data.flight);
@@ -24,19 +28,27 @@ export const bookTicketService = async (data: TicketBody) => {
   );
   if (seatTaken) throw new Error("seat already booked on this flight");
 
-  if (!flight.seats) {
-    throw new Error("flight seats information missing");
+  let classSeats: Seat[] = [];
+  if (data.class === "first") {
+    classSeats = flight.firstSeats;
+  }
+  if (data.class === "business") {
+    classSeats = flight.businessSeats;
+  }
+  if (data.class === "economy") {
+    classSeats = flight.economySeats;
   }
 
-  if (flight.seats.booked >= flight.seats.total) {
-    throw new Error("flight is fully booked");
-  }
+  const bookedSeat = classSeats.find((seat) => seat.seat === data.seatNumber);
+  if (!bookedSeat) throw new Error("seat does not exist in this class");
+  if (!bookedSeat.availability) throw new Error("seat is not available");
 
-  const ticket = await saveTicket(data);
+  const price = TICKET_PRICES[data.class];
 
-  await FlightModel.findByIdAndUpdate(data.flight, {
-    $inc: { "seats.booked": 1 },
-  });
+  const ticket = await saveTicket({ ...data, price });
+
+  bookedSeat.availability = false;
+  await flight.save();
 
   return ticket;
 };
@@ -53,10 +65,6 @@ export const cancelTicketService = async (id: string) => {
   }
 
   const ticket = await cancelTicketById(id);
-
-  await FlightModel.findByIdAndUpdate(existingTicket.flight, {
-    $inc: { "seats.booked": -1 },
-  });
 
   return ticket;
 };
@@ -78,4 +86,62 @@ export const getTicketsService = async (filters: {
 
 export const getTicketByIdService = async (id: string) => {
   return await findTicketById(id);
+};
+
+export const bookBatchService = async (data: BatchTicketBody) => {
+  const flight = await findFlightById(data.flight);
+  if (!flight) throw new Error("flight not found");
+
+  const seatsToBook: Seat[] = [];
+
+  for (const item of data.tickets) {
+    const seatTaken = await findTicketByFlightAndSeat(
+      data.flight,
+      item.seatNumber,
+    );
+    if (seatTaken) {
+      throw new Error(
+        "seat " + item.seatNumber + " already booked on this flight",
+      );
+    }
+
+    let classSeats: Seat[] = [];
+    if (item.class === "first") {
+      classSeats = flight.firstSeats;
+    }
+    if (item.class === "business") {
+      classSeats = flight.businessSeats;
+    }
+    if (item.class === "economy") {
+      classSeats = flight.economySeats;
+    }
+
+    const seat = classSeats.find((s) => s.seat === item.seatNumber);
+    if (!seat) throw new Error("seat does not exist in this class");
+    if (!seat.availability) {
+      throw new Error("seat " + item.seatNumber + " is not available");
+    }
+
+    seatsToBook.push(seat);
+  }
+
+  const tickets = [];
+
+  for (let i = 0; i < data.tickets.length; i++) {
+    const item = data.tickets[i];
+    const ticket = await saveTicket({
+      flight: data.flight,
+      passenger: item.passenger,
+      seatNumber: item.seatNumber,
+      class: item.class,
+      price: TICKET_PRICES[item.class],
+      status: "confirmed",
+    });
+    seatsToBook[i].availability = false;
+    tickets.push(ticket);
+  }
+
+  await flight.save();
+
+  return tickets;
 };

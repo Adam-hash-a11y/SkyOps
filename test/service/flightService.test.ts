@@ -3,6 +3,7 @@ import {
   deleteFlightService,
   getFlightByFlightNumber,
   getFlightsByFilters,
+  getFreeSeatsService,
   updateFlightService,
 } from "../../src/service/flightService";
 import {
@@ -32,16 +33,71 @@ describe("test createFlightService fucntion", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
     };
+    const savedData = {
+      flightNumber: "SKYOPS-101",
+      firstSeats: [
+        { seat: "A1", availability: false },
+        { seat: "A2", availability: true },
+      ],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
+
     (findFlightByNumber as jest.Mock).mockResolvedValue(null);
-    (saveFlight as jest.Mock).mockResolvedValue(flight);
+    (saveFlight as jest.Mock).mockResolvedValue({
+      ...savedData,
+      toObject: () => savedData,
+    });
 
     // When
     const result = await createFlightService(flight);
 
     // Then
-    expect(result).toEqual(flight);
+    expect(result).toEqual({ ...savedData, totalSeats: 3, bookedSeats: 1 });
+  });
+
+  it("should build the seats from the counts before saving", async () => {
+    // Given
+    const flight: FlightBody = {
+      flightNumber: "SKYOPS-101",
+      airline: "Lufthansa",
+      route: { origin: "TUN", destination: "FRA" },
+      schedule: {
+        departureTime: new Date("2026-06-01T08:00:00"),
+        arrivalTime: new Date("2026-06-01T11:00:00"),
+      },
+      status: "scheduled",
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
+    };
+
+    const savedData = { firstSeats: [], businessSeats: [], economySeats: [] };
+    (findFlightByNumber as jest.Mock).mockResolvedValue(null);
+    (saveFlight as jest.Mock).mockResolvedValue({
+      ...savedData,
+      toObject: () => savedData,
+    });
+
+    // When
+    await createFlightService(flight);
+
+    // Then
+    const savedFlight = (saveFlight as jest.Mock).mock.calls[0][0];
+    expect(savedFlight.firstSeats).toEqual([
+      { seat: "A1", availability: true },
+      { seat: "A2", availability: true },
+    ]);
+    expect(savedFlight.businessSeats).toEqual([]);
+    expect(savedFlight.economySeats).toEqual([
+      { seat: "C1", availability: true },
+      { seat: "C2", availability: true },
+      { seat: "C3", availability: true },
+    ]);
   });
 
   it("should throw a flight number already exists error whhen flight number already exists", async () => {
@@ -55,7 +111,9 @@ describe("test createFlightService fucntion", () => {
         arrivalTime: new Date("2026-06-01T11:00:00"),
       },
       status: "scheduled",
-      seats: { total: 180, booked: 0 },
+      firstSeats: 2,
+      businessSeats: 0,
+      economySeats: 3,
     };
     (findFlightByNumber as jest.Mock).mockResolvedValue(flight);
 
@@ -71,14 +129,23 @@ describe("test getFlightByFlightNumber service function", () => {
   it("should return a flight when found", async () => {
     // Given
     const flightNumber = "SKYOPS-101";
-    const mockFlight = { flightNumber, airline: "Lufthansa" };
-    (findFlightByNumber as jest.Mock).mockResolvedValue(mockFlight);
+    const flightData = {
+      flightNumber,
+      airline: "Lufthansa",
+      firstSeats: [{ seat: "A1", availability: false }],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
+    (findFlightByNumber as jest.Mock).mockResolvedValue({
+      ...flightData,
+      toObject: () => flightData,
+    });
 
     // When
     const result = await getFlightByFlightNumber(flightNumber);
 
     // Then
-    expect(result).toEqual(mockFlight);
+    expect(result).toEqual({ ...flightData, totalSeats: 2, bookedSeats: 1 });
   });
 
   it("should return null when flight not found", async () => {
@@ -98,14 +165,22 @@ describe("test getFlightsByFilters service function", () => {
   it("should return flights matching filters", async () => {
     // Given
     const filters = { status: "scheduled" as FlightStatus };
-    const mockFlights = [{ flightNumber: "SKYOPS-101", status: "scheduled" }];
-    (findFlightsByFilters as jest.Mock).mockResolvedValue(mockFlights);
+    const flightData = {
+      flightNumber: "SKYOPS-101",
+      status: "scheduled",
+      firstSeats: [{ seat: "A1", availability: false }],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
+    (findFlightsByFilters as jest.Mock).mockResolvedValue([
+      { ...flightData, toObject: () => flightData },
+    ]);
 
     // When
     const result = await getFlightsByFilters(filters);
 
     // Then
-    expect(result).toEqual(mockFlights);
+    expect(result).toEqual([{ ...flightData, totalSeats: 2, bookedSeats: 1 }]);
   });
 
   it("should return empty array when no flights match", async () => {
@@ -129,15 +204,24 @@ describe("test updateFlightService function", () => {
     // Given
     const flightNumber = "SKYOPS-101";
     const updates: Partial<FlightBody> = { status: "delayed" };
-    const mockFlight = { flightNumber, status: "delayed" };
+    const flightData = {
+      flightNumber,
+      status: "delayed",
+      firstSeats: [{ seat: "A1", availability: false }],
+      businessSeats: [],
+      economySeats: [{ seat: "C1", availability: true }],
+    };
     (findFlightByNumber as jest.Mock).mockResolvedValue({ flightNumber });
-    (updateFlightByFlightNumber as jest.Mock).mockResolvedValue(mockFlight);
+    (updateFlightByFlightNumber as jest.Mock).mockResolvedValue({
+      ...flightData,
+      toObject: () => flightData,
+    });
 
     // When
     const result = await updateFlightService(flightNumber, updates);
 
     // Then
-    expect(result).toEqual(mockFlight);
+    expect(result).toEqual({ ...flightData, totalSeats: 2, bookedSeats: 1 });
   });
 
   it("should return null when flight not found", async () => {
@@ -178,6 +262,71 @@ describe("test deleteFlightService function", () => {
 
     // When
     const result = await deleteFlightService(flightNumber);
+
+    // Then
+    expect(result).toBeNull();
+  });
+});
+
+describe("test getFreeSeatsService function", () => {
+  const flightData = {
+    flightNumber: "SKYOPS-101",
+    firstSeats: [
+      { seat: "A1", availability: false },
+      { seat: "A2", availability: true },
+    ],
+    businessSeats: [{ seat: "B1", availability: true }],
+    economySeats: [
+      { seat: "C1", availability: true },
+      { seat: "C2", availability: true },
+      { seat: "C3", availability: false },
+    ],
+  };
+
+  it("should return all free seats with their class and the counts", async () => {
+    // Given
+    (findFlightByNumber as jest.Mock).mockResolvedValue(flightData);
+
+    // When
+    const result = await getFreeSeatsService("SKYOPS-101");
+
+    // Then
+    expect(result).toEqual({
+      seats: [
+        { seat: "A2", class: "first" },
+        { seat: "B1", class: "business" },
+        { seat: "C1", class: "economy" },
+        { seat: "C2", class: "economy" },
+      ],
+      counts: { first: 1, business: 1, economy: 2 },
+      prices: { first: 900, business: 500, economy: 200 },
+    });
+  });
+
+  it("should return only the seats of the asked class but the counts of all classes", async () => {
+    // Given
+    (findFlightByNumber as jest.Mock).mockResolvedValue(flightData);
+
+    // When
+    const result = await getFreeSeatsService("SKYOPS-101", "economy");
+
+    // Then
+    expect(result).toEqual({
+      seats: [
+        { seat: "C1", class: "economy" },
+        { seat: "C2", class: "economy" },
+      ],
+      counts: { first: 1, business: 1, economy: 2 },
+      prices: { first: 900, business: 500, economy: 200 },
+    });
+  });
+
+  it("should return null when flight not found", async () => {
+    // Given
+    (findFlightByNumber as jest.Mock).mockResolvedValue(null);
+
+    // When
+    const result = await getFreeSeatsService("SKYOPS-999");
 
     // Then
     expect(result).toBeNull();

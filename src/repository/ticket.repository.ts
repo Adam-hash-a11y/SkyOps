@@ -1,7 +1,7 @@
+import { SavedTicketBody } from "../types/ticket.types";
 import { TicketModel } from "../model/ticket.model";
-import { TicketBody } from "../types/ticket.types";
 
-export const saveTicket = async (ticket: TicketBody) => {
+export const saveTicket = async (ticket: SavedTicketBody) => {
   try {
     const doc = new TicketModel(ticket);
     return await doc.save();
@@ -11,12 +11,14 @@ export const saveTicket = async (ticket: TicketBody) => {
 };
 
 export const findAllTickets = async () => {
-  return await TicketModel.find().populate("flight").populate("passenger");
+  return await TicketModel.find()
+    .populate("flight", "flightNumber airline route schedule status")
+    .populate("passenger");
 };
 
 export const findTicketById = async (id: string) => {
   return await TicketModel.findById(id)
-    .populate("flight")
+    .populate("flight", "flightNumber airline route schedule status")
     .populate("passenger");
 };
 
@@ -28,17 +30,21 @@ export const findTicketByFlightAndSeat = async (
 };
 
 export const findTicketsByPassenger = async (passengerId: string) => {
-  return await TicketModel.find({ passenger: passengerId }).populate("flight");
+  return await TicketModel.find({ passenger: passengerId })
+    .populate("flight", "flightNumber airline route schedule status")
+    .populate("passenger");
 };
 
 export const findTicketsByFlight = async (flightId: string) => {
-  return await TicketModel.find({ flight: flightId }).populate("passenger");
+  return await TicketModel.find({ flight: flightId })
+    .populate("flight", "flightNumber airline route schedule status")
+    .populate("passenger");
 };
 
 export const cancelTicketById = async (id: string) => {
   return await TicketModel.findByIdAndUpdate(
     id,
     { status: "cancelled" },
-    { new: true },
+    { returnDocument: "after" },
   );
 };
