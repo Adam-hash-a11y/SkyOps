@@ -28,21 +28,27 @@ export const deletePassengerByPassportNumber = async (
   return await PassengerModel.findOneAndDelete({ passportNumber });
 };
 
+const escapeRegex = (text: string) =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+
 export const findPassengersByFilters = async (filters: {
   nationality?: string;
   firstName?: string;
   lastName?: string;
   sortBy?: string;
 }) => {
-  const filter: Record<string, string> = {};
+  const filter: Record<string, unknown> = {};
   if (filters.nationality) {
     filter.nationality = filters.nationality;
   }
   if (filters.firstName) {
-    filter.firstName = filters.firstName;
+    filter.firstName = {
+      $regex: escapeRegex(filters.firstName),
+      $options: "i",
+    };
   }
   if (filters.lastName) {
-    filter.lastName = filters.lastName;
+    filter.lastName = { $regex: escapeRegex(filters.lastName), $options: "i" };
   }
   return await PassengerModel.find(filter).sort(
     filters.sortBy === "firstName" ? { firstName: 1 } : {},
