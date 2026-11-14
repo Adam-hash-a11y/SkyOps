@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
-import { bookTicketService, cancelTicketService, getTicketByIdService, getTicketsService } from "../service/ticketService";
-import { TicketBody } from "../types/ticket.types";
+import {
+  bookBatchService,
+  bookTicketService,
+  cancelTicketService,
+  getTicketByIdService,
+  getTicketsService,
+} from "../service/ticketService";
+import { BatchTicketBody, TicketBody } from "../types/ticket.types";
 
 export const bookTicket = async (req: Request, res: Response) => {
   try {
@@ -53,5 +59,14 @@ export const cancelTicket = async (
     return res.status(404).json({
       message: (error as Error).message,
     });
+  }
+};
+
+export const bookBatch = async (req: Request, res: Response) => {
+  try {
+    const result = await bookBatchService(req.body as BatchTicketBody);
+    return res.status(201).json({ tickets: result });
+  } catch (error) {
+    return res.status(409).json({ message: (error as Error).message });
   }
 };

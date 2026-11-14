@@ -13,10 +13,10 @@ import { validateUpdatePassenger } from "../middleware/validateUpdatePassenger.m
 import { authMiddleware } from "../middleware/auth.middelware";
 
 export const passengersRouter = express.Router();
-passengersRouter.use(authMiddleware)
+passengersRouter.use(authMiddleware);
 passengersRouter.post("/", validateCreatePassenger, createPassenger);
 passengersRouter.get("/", validateGetPassengers, getPassengers);
-passengersRouter.get("/:passportNumber", validatePassportNumber, getPassenger);
+passengersRouter.get("/:passportNumber", getPassenger);
 passengersRouter.delete(
   "/:passportNumber",
   validatePassportNumber,

@@ -3,7 +3,6 @@ import {
   isValidTicketBody,
   isValidSeatNumber,
   isValidTicketClass,
-  isValidTicketPrice,
 } from "../validator/ticket.validator";
 
 import { TicketBody } from "../types/ticket.types";
@@ -31,9 +30,21 @@ export const validateTicketBooking = (
     });
   }
 
-  if (!isValidTicketPrice(ticket.price)) {
+  if (ticket.class === "first" && !ticket.seatNumber.startsWith("A")) {
     return res.status(400).json({
-      message: "price must be a positive number",
+      message: "first class seats start with A",
+    });
+  }
+
+  if (ticket.class === "business" && !ticket.seatNumber.startsWith("B")) {
+    return res.status(400).json({
+      message: "business class seats start with B",
+    });
+  }
+
+  if (ticket.class === "economy" && !ticket.seatNumber.startsWith("C")) {
+    return res.status(400).json({
+      message: "economy class seats start with C",
     });
   }
 
