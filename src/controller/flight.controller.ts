@@ -4,6 +4,7 @@ import {
   deleteFlightService,
   getFlightByFlightNumber,
   getFlightsByFilters,
+  getFreeSeatsService,
   updateFlightService,
 } from "../service/flightService";
 import { FlightBody, FlightStatus } from "../types/flight.types";
@@ -69,4 +70,22 @@ export const updateFlight = async (
     message: "flight updated successfully",
     flight: result,
   });
+};
+
+export const getFreeSeats = async (
+  req: Request<{ flightNumber: string }>,
+  res: Response,
+) => {
+  const { class: seatClass } = req.query;
+
+  const result = await getFreeSeatsService(
+    req.params.flightNumber,
+    seatClass as string,
+  );
+
+  if (!result) {
+    return res.status(404).json({ message: "flight not found" });
+  }
+
+  return res.status(200).json(result);
 };
